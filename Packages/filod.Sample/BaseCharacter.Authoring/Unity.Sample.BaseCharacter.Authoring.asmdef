@@ -1,0 +1,31 @@
+{
+    "name": "Unity.Sample.BaseCharacter.Authoring",
+    "references": [
+        "GUID:8819f35a0fc84499b990e90a4ca1911f",
+        "GUID:6996cd74705d69e41a08d9ebb30a2210",
+        "GUID:9a04c788d87cbe544af964aa9d8dae24",
+        "GUID:58792b48da15aff48ae3698ebf3f0f84",
+        "GUID:d67902ebcd4163f4e941eb9b102abe85",
+        "GUID:734d92eba21c94caba915361bd5ac177",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:49f8af64274d04f318e9547deb9c498b",
+        "GUID:3d581b522efa5ba499d64762a189f84c",
+        "GUID:39174d49d2befe84d9c54bf8b8d32755",
+        "GUID:cf3547b97f3ec664f9eca740d393c07c",
+        "GUID:ce589c8b111b52c4b814157ea95efb36",
+        "GUID:f06ce52cb129b7347abc83112171a2a1",
+        "GUID:f3468e3448cd1234b911a7fa78a7f866",
+        "GUID:dc90cb675e2bd4d4998289ab6bd4bef8"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

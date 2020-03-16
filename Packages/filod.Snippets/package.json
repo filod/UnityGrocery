@@ -1,0 +1,11 @@
+{
+  "name": "filod.snippets",
+  "displayName": "filod - Snippets",
+  "version": "1.0.0",
+  "unity": "2019.3",
+  "description": "Useful Snippets",
+  "dependencies": {
+    "com.unity.entities": "0.8.0-preview.8",
+    "com.unity.physics": "0.3.0-preview.1"
+  }
+}

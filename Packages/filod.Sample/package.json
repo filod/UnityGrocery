@@ -1,0 +1,14 @@
+{
+  "name": "filod.sample",
+  "displayName": "filod - Sample",
+  "version": "1.0.1",
+  "unity": "2019.3",
+  "description": "DOTS Sample fork by filod",
+  "dependencies": {
+    "com.unity.entities": "0.8.0-preview.8",
+    "com.unity.physics": "0.3.0-preview.1",
+    "com.unity.netcode": "0.1.0-preview.6",
+    "com.unity.rendering.hybrid": "0.4.0-preview.8",
+    "com.unity.render-pipelines.core": "7.2.1"
+  }
+}

@@ -1,0 +1,194 @@
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
+using Unity.Collections;
+using Unity.NetCode;
+using Unity.Transforms;
+using Unity.Rendering;
+
+public struct Char_CapsuleGhostSerializer : IGhostSerializer<Char_CapsuleSnapshotData>
+{
+    private ComponentType componentTypeAbilityCollectionAbilityEntry;
+    private ComponentType componentTypeAbilityCollectionState;
+    private ComponentType componentTypeAbilityOwnerOwnedAbility;
+    private ComponentType componentTypeAbilityOwnerOwnedCollection;
+    private ComponentType componentTypeAbilityOwnerState;
+    private ComponentType componentTypeAimDataData;
+    private ComponentType componentTypeCharacterInterpolatedData;
+    private ComponentType componentTypeCharacterPredictedData;
+    private ComponentType componentTypeCharacterReplicatedData;
+    private ComponentType componentTypeCharacterSettings;
+    private ComponentType componentTypeCharacterControllerComponentData;
+    private ComponentType componentTypeCharacterControllerGroundSupportData;
+    private ComponentType componentTypeCharacterControllerInitializationData;
+    private ComponentType componentTypeCharacterControllerMoveQuery;
+    private ComponentType componentTypeCharacterControllerMoveResult;
+    private ComponentType componentTypeCharacterControllerVelocity;
+    private ComponentType componentTypeDamageEvent;
+    private ComponentType componentTypeDamageHistoryData;
+    private ComponentType componentTypeHealthStateData;
+    private ComponentType componentTypeInventoryInternalState;
+    private ComponentType componentTypeInventoryItemEntry;
+    private ComponentType componentTypeInventoryState;
+    private ComponentType componentTypePlayerOwnerPlayerId;
+    private ComponentType componentTypePlayerControlledState;
+    private ComponentType componentTypeLocalToWorld;
+    private ComponentType componentTypeRotation;
+    private ComponentType componentTypeTranslation;
+    private ComponentType componentTypeLinkedEntityGroup;
+    // FIXME: These disable safety since all serializers have an instance of the same type - causing aliasing. Should be fixed in a cleaner way
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Character.InterpolatedData> ghostCharacterInterpolatedDataType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Character.PredictedData> ghostCharacterPredictedDataType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Character.ReplicatedData> ghostCharacterReplicatedDataType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<CharacterControllerGroundSupportData> ghostCharacterControllerGroundSupportDataType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<CharacterControllerMoveResult> ghostCharacterControllerMoveResultType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<CharacterControllerVelocity> ghostCharacterControllerVelocityType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<HealthStateData> ghostHealthStateDataType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Inventory.State> ghostInventoryStateType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Player.OwnerPlayerId> ghostPlayerOwnerPlayerIdType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<PlayerControlled.State> ghostPlayerControlledStateType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkBufferType<LinkedEntityGroup> ghostLinkedEntityGroupType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<Ability.AbilityControl> ghostChild0AbilityAbilityControlType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<AbilityMovement.InterpolatedState> ghostChild0AbilityMovementInterpolatedStateType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<AbilityMovement.PredictedState> ghostChild0AbilityMovementPredictedStateType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<Ability.AbilityControl> ghostChild1AbilityAbilityControlType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<Ability.AbilityControl> ghostChild2AbilityAbilityControlType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<AbilityDash.PredictedState> ghostChild2AbilityDashPredictedStateType;
+
+
+    public int CalculateImportance(ArchetypeChunk chunk)
+    {
+        return 1;
+    }
+
+    public int SnapshotSize => UnsafeUtility.SizeOf<Char_CapsuleSnapshotData>();
+    public void BeginSerialize(ComponentSystemBase system)
+    {
+        componentTypeAbilityCollectionAbilityEntry = ComponentType.ReadWrite<AbilityCollection.AbilityEntry>();
+        componentTypeAbilityCollectionState = ComponentType.ReadWrite<AbilityCollection.State>();
+        componentTypeAbilityOwnerOwnedAbility = ComponentType.ReadWrite<AbilityOwner.OwnedAbility>();
+        componentTypeAbilityOwnerOwnedCollection = ComponentType.ReadWrite<AbilityOwner.OwnedCollection>();
+        componentTypeAbilityOwnerState = ComponentType.ReadWrite<AbilityOwner.State>();
+        componentTypeAimDataData = ComponentType.ReadWrite<AimData.Data>();
+        componentTypeCharacterInterpolatedData = ComponentType.ReadWrite<Character.InterpolatedData>();
+        componentTypeCharacterPredictedData = ComponentType.ReadWrite<Character.PredictedData>();
+        componentTypeCharacterReplicatedData = ComponentType.ReadWrite<Character.ReplicatedData>();
+        componentTypeCharacterSettings = ComponentType.ReadWrite<Character.Settings>();
+        componentTypeCharacterControllerComponentData = ComponentType.ReadWrite<CharacterControllerComponentData>();
+        componentTypeCharacterControllerGroundSupportData = ComponentType.ReadWrite<CharacterControllerGroundSupportData>();
+        componentTypeCharacterControllerInitializationData = ComponentType.ReadWrite<CharacterControllerInitializationData>();
+        componentTypeCharacterControllerMoveQuery = ComponentType.ReadWrite<CharacterControllerMoveQuery>();
+        componentTypeCharacterControllerMoveResult = ComponentType.ReadWrite<CharacterControllerMoveResult>();
+        componentTypeCharacterControllerVelocity = ComponentType.ReadWrite<CharacterControllerVelocity>();
+        componentTypeDamageEvent = ComponentType.ReadWrite<DamageEvent>();
+        componentTypeDamageHistoryData = ComponentType.ReadWrite<DamageHistoryData>();
+        componentTypeHealthStateData = ComponentType.ReadWrite<HealthStateData>();
+        componentTypeInventoryInternalState = ComponentType.ReadWrite<Inventory.InternalState>();
+        componentTypeInventoryItemEntry = ComponentType.ReadWrite<Inventory.ItemEntry>();
+        componentTypeInventoryState = ComponentType.ReadWrite<Inventory.State>();
+        componentTypePlayerOwnerPlayerId = ComponentType.ReadWrite<Player.OwnerPlayerId>();
+        componentTypePlayerControlledState = ComponentType.ReadWrite<PlayerControlled.State>();
+        componentTypeLocalToWorld = ComponentType.ReadWrite<LocalToWorld>();
+        componentTypeRotation = ComponentType.ReadWrite<Rotation>();
+        componentTypeTranslation = ComponentType.ReadWrite<Translation>();
+        componentTypeLinkedEntityGroup = ComponentType.ReadWrite<LinkedEntityGroup>();
+        ghostCharacterInterpolatedDataType = system.GetArchetypeChunkComponentType<Character.InterpolatedData>(true);
+        ghostCharacterPredictedDataType = system.GetArchetypeChunkComponentType<Character.PredictedData>(true);
+        ghostCharacterReplicatedDataType = system.GetArchetypeChunkComponentType<Character.ReplicatedData>(true);
+        ghostCharacterControllerGroundSupportDataType = system.GetArchetypeChunkComponentType<CharacterControllerGroundSupportData>(true);
+        ghostCharacterControllerMoveResultType = system.GetArchetypeChunkComponentType<CharacterControllerMoveResult>(true);
+        ghostCharacterControllerVelocityType = system.GetArchetypeChunkComponentType<CharacterControllerVelocity>(true);
+        ghostHealthStateDataType = system.GetArchetypeChunkComponentType<HealthStateData>(true);
+        ghostInventoryStateType = system.GetArchetypeChunkComponentType<Inventory.State>(true);
+        ghostPlayerOwnerPlayerIdType = system.GetArchetypeChunkComponentType<Player.OwnerPlayerId>(true);
+        ghostPlayerControlledStateType = system.GetArchetypeChunkComponentType<PlayerControlled.State>(true);
+        ghostLinkedEntityGroupType = system.GetArchetypeChunkBufferType<LinkedEntityGroup>(true);
+        ghostChild0AbilityAbilityControlType = system.GetComponentDataFromEntity<Ability.AbilityControl>(true);
+        ghostChild0AbilityMovementInterpolatedStateType = system.GetComponentDataFromEntity<AbilityMovement.InterpolatedState>(true);
+        ghostChild0AbilityMovementPredictedStateType = system.GetComponentDataFromEntity<AbilityMovement.PredictedState>(true);
+        ghostChild1AbilityAbilityControlType = system.GetComponentDataFromEntity<Ability.AbilityControl>(true);
+        ghostChild2AbilityAbilityControlType = system.GetComponentDataFromEntity<Ability.AbilityControl>(true);
+        ghostChild2AbilityDashPredictedStateType = system.GetComponentDataFromEntity<AbilityDash.PredictedState>(true);
+    }
+
+    public void CopyToSnapshot(ArchetypeChunk chunk, int ent, uint tick, ref Char_CapsuleSnapshotData snapshot, GhostSerializerState serializerState)
+    {
+        snapshot.tick = tick;
+        var chunkDataCharacterInterpolatedData = chunk.GetNativeArray(ghostCharacterInterpolatedDataType);
+        var chunkDataCharacterPredictedData = chunk.GetNativeArray(ghostCharacterPredictedDataType);
+        var chunkDataCharacterReplicatedData = chunk.GetNativeArray(ghostCharacterReplicatedDataType);
+        var chunkDataCharacterControllerGroundSupportData = chunk.GetNativeArray(ghostCharacterControllerGroundSupportDataType);
+        var chunkDataCharacterControllerMoveResult = chunk.GetNativeArray(ghostCharacterControllerMoveResultType);
+        var chunkDataCharacterControllerVelocity = chunk.GetNativeArray(ghostCharacterControllerVelocityType);
+        var chunkDataHealthStateData = chunk.GetNativeArray(ghostHealthStateDataType);
+        var chunkDataInventoryState = chunk.GetNativeArray(ghostInventoryStateType);
+        var chunkDataPlayerOwnerPlayerId = chunk.GetNativeArray(ghostPlayerOwnerPlayerIdType);
+        var chunkDataPlayerControlledState = chunk.GetNativeArray(ghostPlayerControlledStateType);
+        var chunkDataLinkedEntityGroup = chunk.GetBufferAccessor(ghostLinkedEntityGroupType);
+        snapshot.SetCharacterInterpolatedDataPosition(chunkDataCharacterInterpolatedData[ent].Position, serializerState);
+        snapshot.SetCharacterInterpolatedDatarotation(chunkDataCharacterInterpolatedData[ent].rotation, serializerState);
+        snapshot.SetCharacterInterpolatedDataaimYaw(chunkDataCharacterInterpolatedData[ent].aimYaw, serializerState);
+        snapshot.SetCharacterInterpolatedDataaimPitch(chunkDataCharacterInterpolatedData[ent].aimPitch, serializerState);
+        snapshot.SetCharacterInterpolatedDatamoveYaw(chunkDataCharacterInterpolatedData[ent].moveYaw, serializerState);
+        snapshot.SetCharacterInterpolatedDatacharAction(chunkDataCharacterInterpolatedData[ent].charAction, serializerState);
+        snapshot.SetCharacterInterpolatedDatacharActionTick(chunkDataCharacterInterpolatedData[ent].charActionTick, serializerState);
+        snapshot.SetCharacterInterpolatedDatadamageTick(chunkDataCharacterInterpolatedData[ent].damageTick, serializerState);
+        snapshot.SetCharacterInterpolatedDatadamageDirection(chunkDataCharacterInterpolatedData[ent].damageDirection, serializerState);
+        snapshot.SetCharacterInterpolatedDatasprinting(chunkDataCharacterInterpolatedData[ent].sprinting, serializerState);
+        snapshot.SetCharacterInterpolatedDatasprintWeight(chunkDataCharacterInterpolatedData[ent].sprintWeight, serializerState);
+        snapshot.SetCharacterInterpolatedDatacrouchWeight(chunkDataCharacterInterpolatedData[ent].crouchWeight, serializerState);
+        snapshot.SetCharacterInterpolatedDataselectorTargetSource(chunkDataCharacterInterpolatedData[ent].selectorTargetSource, serializerState);
+        snapshot.SetCharacterInterpolatedDatamoveAngleLocal(chunkDataCharacterInterpolatedData[ent].moveAngleLocal, serializerState);
+        snapshot.SetCharacterInterpolatedDatashootPoseWeight(chunkDataCharacterInterpolatedData[ent].shootPoseWeight, serializerState);
+        snapshot.SetCharacterInterpolatedDatalocomotionVector(chunkDataCharacterInterpolatedData[ent].locomotionVector, serializerState);
+        snapshot.SetCharacterInterpolatedDatalocomotionPhase(chunkDataCharacterInterpolatedData[ent].locomotionPhase, serializerState);
+        snapshot.SetCharacterInterpolatedDatabanking(chunkDataCharacterInterpolatedData[ent].banking, serializerState);
+        snapshot.SetCharacterInterpolatedDatalandAnticWeight(chunkDataCharacterInterpolatedData[ent].landAnticWeight, serializerState);
+        snapshot.SetCharacterInterpolatedDataturnStartAngle(chunkDataCharacterInterpolatedData[ent].turnStartAngle, serializerState);
+        snapshot.SetCharacterInterpolatedDataturnDirection(chunkDataCharacterInterpolatedData[ent].turnDirection, serializerState);
+        snapshot.SetCharacterInterpolatedDatasquashTime(chunkDataCharacterInterpolatedData[ent].squashTime, serializerState);
+        snapshot.SetCharacterInterpolatedDatasquashWeight(chunkDataCharacterInterpolatedData[ent].squashWeight, serializerState);
+        snapshot.SetCharacterInterpolatedDatainAirTime(chunkDataCharacterInterpolatedData[ent].inAirTime, serializerState);
+        snapshot.SetCharacterInterpolatedDatajumpTime(chunkDataCharacterInterpolatedData[ent].jumpTime, serializerState);
+        snapshot.SetCharacterInterpolatedDatasimpleTime(chunkDataCharacterInterpolatedData[ent].simpleTime, serializerState);
+        snapshot.SetCharacterInterpolatedDatafootIkOffset(chunkDataCharacterInterpolatedData[ent].footIkOffset, serializerState);
+        snapshot.SetCharacterInterpolatedDatafootIkNormalLeft(chunkDataCharacterInterpolatedData[ent].footIkNormalLeft, serializerState);
+        snapshot.SetCharacterInterpolatedDatafootIkNormalRight(chunkDataCharacterInterpolatedData[ent].footIkNormalRight, serializerState);
+        snapshot.SetCharacterInterpolatedDatafootIkWeight(chunkDataCharacterInterpolatedData[ent].footIkWeight, serializerState);
+        snapshot.SetCharacterInterpolatedDatablendOutAim(chunkDataCharacterInterpolatedData[ent].blendOutAim, serializerState);
+        snapshot.SetCharacterPredictedDatatick(chunkDataCharacterPredictedData[ent].tick, serializerState);
+        snapshot.SetCharacterPredictedDataposition(chunkDataCharacterPredictedData[ent].position, serializerState);
+        snapshot.SetCharacterPredictedDatavelocity(chunkDataCharacterPredictedData[ent].velocity, serializerState);
+        snapshot.SetCharacterPredictedDatasprinting(chunkDataCharacterPredictedData[ent].sprinting, serializerState);
+        snapshot.SetCharacterPredictedDatacameraProfile(chunkDataCharacterPredictedData[ent].cameraProfile, serializerState);
+        snapshot.SetCharacterPredictedDatadamageTick(chunkDataCharacterPredictedData[ent].damageTick, serializerState);
+        snapshot.SetCharacterPredictedDatadamageDirection(chunkDataCharacterPredictedData[ent].damageDirection, serializerState);
+        snapshot.SetCharacterReplicatedDataheroTypeIndex(chunkDataCharacterReplicatedData[ent].heroTypeIndex, serializerState);
+        snapshot.SetCharacterControllerGroundSupportDataSurfaceNormal(chunkDataCharacterControllerGroundSupportData[ent].SurfaceNormal, serializerState);
+        snapshot.SetCharacterControllerGroundSupportDataSurfaceVelocity(chunkDataCharacterControllerGroundSupportData[ent].SurfaceVelocity, serializerState);
+        snapshot.SetCharacterControllerGroundSupportDataSupportedState(chunkDataCharacterControllerGroundSupportData[ent].SupportedState, serializerState);
+        snapshot.SetCharacterControllerMoveResultMoveResult(chunkDataCharacterControllerMoveResult[ent].MoveResult, serializerState);
+        snapshot.SetCharacterControllerVelocityVelocity(chunkDataCharacterControllerVelocity[ent].Velocity, serializerState);
+        snapshot.SetHealthStateDatahealth(chunkDataHealthStateData[ent].health, serializerState);
+        snapshot.SetInventoryStateactiveSlot(chunkDataInventoryState[ent].activeSlot, serializerState);
+        snapshot.SetPlayerOwnerPlayerIdValue(chunkDataPlayerOwnerPlayerId[ent].Value, serializerState);
+        snapshot.SetPlayerControlledStateresetCommandTick(chunkDataPlayerControlledState[ent].resetCommandTick, serializerState);
+        snapshot.SetPlayerControlledStateresetCommandLookYaw(chunkDataPlayerControlledState[ent].resetCommandLookYaw, serializerState);
+        snapshot.SetPlayerControlledStateresetCommandLookPitch(chunkDataPlayerControlledState[ent].resetCommandLookPitch, serializerState);
+        snapshot.SetChild0AbilityAbilityControlbehaviorState(ghostChild0AbilityAbilityControlType[chunkDataLinkedEntityGroup[ent][1].Value].behaviorState, serializerState);
+        snapshot.SetChild0AbilityAbilityControlrequestDeactivate(ghostChild0AbilityAbilityControlType[chunkDataLinkedEntityGroup[ent][1].Value].requestDeactivate, serializerState);
+        snapshot.SetChild0AbilityMovementInterpolatedStatecharLocoState(ghostChild0AbilityMovementInterpolatedStateType[chunkDataLinkedEntityGroup[ent][1].Value].charLocoState, serializerState);
+        snapshot.SetChild0AbilityMovementInterpolatedStatecharLocoTick(ghostChild0AbilityMovementInterpolatedStateType[chunkDataLinkedEntityGroup[ent][1].Value].charLocoTick, serializerState);
+        snapshot.SetChild0AbilityMovementInterpolatedStatecrouching(ghostChild0AbilityMovementInterpolatedStateType[chunkDataLinkedEntityGroup[ent][1].Value].crouching, serializerState);
+        snapshot.SetChild0AbilityMovementPredictedStatelocoState(ghostChild0AbilityMovementPredictedStateType[chunkDataLinkedEntityGroup[ent][1].Value].locoState, serializerState);
+        snapshot.SetChild0AbilityMovementPredictedStatelocoStartTick(ghostChild0AbilityMovementPredictedStateType[chunkDataLinkedEntityGroup[ent][1].Value].locoStartTick, serializerState);
+        snapshot.SetChild0AbilityMovementPredictedStatejumpCount(ghostChild0AbilityMovementPredictedStateType[chunkDataLinkedEntityGroup[ent][1].Value].jumpCount, serializerState);
+        snapshot.SetChild0AbilityMovementPredictedStatecrouching(ghostChild0AbilityMovementPredictedStateType[chunkDataLinkedEntityGroup[ent][1].Value].crouching, serializerState);
+        snapshot.SetChild1AbilityAbilityControlbehaviorState(ghostChild1AbilityAbilityControlType[chunkDataLinkedEntityGroup[ent][2].Value].behaviorState, serializerState);
+        snapshot.SetChild1AbilityAbilityControlrequestDeactivate(ghostChild1AbilityAbilityControlType[chunkDataLinkedEntityGroup[ent][2].Value].requestDeactivate, serializerState);
+        snapshot.SetChild2AbilityAbilityControlbehaviorState(ghostChild2AbilityAbilityControlType[chunkDataLinkedEntityGroup[ent][3].Value].behaviorState, serializerState);
+        snapshot.SetChild2AbilityAbilityControlrequestDeactivate(ghostChild2AbilityAbilityControlType[chunkDataLinkedEntityGroup[ent][3].Value].requestDeactivate, serializerState);
+        snapshot.SetChild2AbilityDashPredictedStatelocoState(ghostChild2AbilityDashPredictedStateType[chunkDataLinkedEntityGroup[ent][3].Value].locoState, serializerState);
+        snapshot.SetChild2AbilityDashPredictedStatelocoStartTick(ghostChild2AbilityDashPredictedStateType[chunkDataLinkedEntityGroup[ent][3].Value].locoStartTick, serializerState);
+        snapshot.SetChild2AbilityDashPredictedStatestartVelocity(ghostChild2AbilityDashPredictedStateType[chunkDataLinkedEntityGroup[ent][3].Value].startVelocity, serializerState);
+    }
+}

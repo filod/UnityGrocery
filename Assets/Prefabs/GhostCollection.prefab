@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1723664945785720150
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7296961458606627846}
+  - component: {fileID: 6149125958682952187}
+  - component: {fileID: -1683979524444329716}
+  m_Layer: 0
+  m_Name: GhostCollection
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7296961458606627846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723664945785720150}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6149125958682952187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723664945785720150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e739feae1d9c47c6a78209700d4fac47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 0
+  ConversionTarget: 1
+  canDestroy: 0
+--- !u!114 &-1683979524444329716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723664945785720150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c75b8787d8624691813514d3823a59f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SerializerCollectionPath: /Scripts/Networking/Generated/GhostSerializerCollection.cs
+  DeserializerCollectionPath: /Scripts/Networking/Generated/GhostDeserializerCollection.cs
+  NamePrefix: UnityGrocery
+  Ghosts:
+  - prefab: {fileID: 6901969167318700234, guid: d43ec3c4ac215a748932cb60d9dfc474,
+      type: 3}
+    enabled: 1
+  - prefab: {fileID: 6383386555576522664, guid: e00dfaa941ae1fe4dbb4dcfd21c09d38,
+      type: 3}
+    enabled: 1
+  - prefab: {fileID: 5152305622910898438, guid: ff34c4c6ade262f47808b639c4d6cf5a,
+      type: 3}
+    enabled: 1
+  - prefab: {fileID: 4270333636301996957, guid: 00e444685f8a5cf4498860e7a6579526,
+      type: 3}
+    enabled: 1
