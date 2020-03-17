@@ -6,19 +6,15 @@ using Unity.Entities;
 using Unity.NetCode;
 using Unity.Sample.Core;
 using UnityEngine;
+using Unity.Physics.Systems;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
 using Unity.NetCode.Editor;
 #endif
 
-[DisableAutoCreation]
-[AlwaysUpdateSystem]
-public class CustomInitializationSystemGroup : InitializationSystemGroup
-{
-}
-
- [InitializeOnLoad]
+[InitializeOnLoad]
 public static class CheckmarkMenuItem
 {
     public const string MENU_NAME = "A2/Offline Mode";
@@ -41,6 +37,36 @@ public static class CheckmarkMenuItem
         Menu.SetChecked(CheckmarkMenuItem.MENU_NAME, enabled);
         EditorPrefs.SetBool(CheckmarkMenuItem.MENU_NAME, enabled);
         CheckmarkMenuItem.enabled_ = enabled;
+    }
+}
+// 
+// TODO (filod) :  hack for now; Unity.Physics's timestep depend on UNITY_DOTSPLAYER macro
+[UpdateBefore(typeof(BuildPhysicsWorld))]
+public class PrePhysicsSetDeltaTimeSystem : ComponentSystem
+{
+    public float timeScale = 1;
+    public float previousDeltaTime = UnityEngine.Time.fixedDeltaTime;
+
+    protected override void OnUpdate()
+    {
+        previousDeltaTime = UnityEngine.Time.fixedDeltaTime;
+        UnityEngine.Time.fixedDeltaTime = Time.DeltaTime * timeScale;
+    }
+}
+
+[UpdateAfter(typeof(ExportPhysicsWorld))]
+public class PostPhysicsResetDeltaTimeSystem : ComponentSystem
+{
+    public PrePhysicsSetDeltaTimeSystem preSystem;
+
+    protected override void OnCreate()
+    {
+        preSystem = World.GetOrCreateSystem<PrePhysicsSetDeltaTimeSystem>();
+    }
+
+    protected override void OnUpdate()
+    {
+        UnityEngine.Time.fixedDeltaTime = preSystem.previousDeltaTime;
     }
 }
 
@@ -89,17 +115,12 @@ public class GameBootStrap : ClientServerBootstrap
             }
             var allSystems = DefaultWorldInitialization.GetAllSystems(WorldSystemFilterFlags.Default);
             GenerateSystemLists(allSystems);
-            //foreach (var item in DefaultWorldSystems)
-            //{
-            //    Debug.Log(item);
-            //}
             var world = new World(defaultWorldName);
             World.DefaultGameObjectInjectionWorld = world;
 
             DefaultWorldInitialization.AddSystemsToRootLevelSystemGroups(world, DefaultWorldSystems);
             ScriptBehaviourUpdateOrder.UpdatePlayerLoop(world);
 
-            world.GetOrCreateSystem<InitializationSystemGroup>().AddSystemToUpdateList(world.GetOrCreateSystem<CustomInitializationSystemGroup>());
             return true;
         }
 #if UNITY_EDITOR

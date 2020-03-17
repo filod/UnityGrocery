@@ -430,7 +430,7 @@ MonoBehaviour:
   MaxIterations: 10
   CharacterMass: 1
   SkinWidth: 0.02
-  ContactTolerance: 0.02
+  ContactTolerance: 0.05
   AffectsPhysicsBodies: 0
   MaxMovementSpeed: 50
   GroundProbeVector:

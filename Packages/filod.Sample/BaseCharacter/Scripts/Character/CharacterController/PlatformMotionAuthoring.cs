@@ -3,10 +3,11 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
-using Unity.Physics.Systems;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Physics.Systems;
 using Random = Unity.Mathematics.Random;
+using Unity.Sample.Core;
 
 public struct PlatformMotion : IComponentData
 {
@@ -39,39 +40,26 @@ public class PlatformMotionAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         });
     }
 }
-
-
 [UpdateBefore(typeof(BuildPhysicsWorld))]
-public class PlatformMotionSystem : JobComponentSystem
+public class PlatformMotionSystem : SystemBase
 {
     protected override void OnCreate()
     {
     }
-
-    protected struct PlatformMotionJob : IJobForEach<PlatformMotion, Translation, PhysicsVelocity>
+    protected override void OnUpdate()
     {
-        public Random random;
-        public float deltaTime;
-
-        public void Execute(ref PlatformMotion motion, [ReadOnly] ref Translation position, ref PhysicsVelocity velocity)
+        var time = GetEntityQuery(ComponentType.ReadOnly<GlobalGameTime>()).GetSingleton<GlobalGameTime>().gameTime;
+        Entities.ForEach((ref PlatformMotion motion, ref PhysicsVelocity velocity, in Translation position) =>
         {
-            motion.CurrentTime += deltaTime;
+            motion.CurrentTime += time.tickDuration;
 
             var desiredOffset = motion.Height * math.sin(motion.CurrentTime * motion.Speed);
             var currentOffset = math.dot(position.Value - motion.InitialPosition, motion.Direction);
             velocity.Linear = motion.Direction * (desiredOffset - currentOffset);
 
             velocity.Angular = motion.Rotation;
-        }
-    }
 
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
-    {
-        Random random = new Random();
-
-        var job = new PlatformMotionJob() { deltaTime = UnityEngine.Time.fixedDeltaTime, random = random };
-        var jobHandle = job.ScheduleSingle(this, inputDeps);
-
-        return jobHandle;
+            //GameDebug.Log($"1 groundState.SurfaceVelocity {velocity.Linear.z}");
+        }).Schedule(Dependency);
     }
 }

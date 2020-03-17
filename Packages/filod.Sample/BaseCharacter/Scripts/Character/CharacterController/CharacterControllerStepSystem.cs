@@ -165,7 +165,6 @@ public class CharacterControllerStepSystem : JobComponentSystem
 
 
         var PredictingTick = World.GetExistingSystem<GhostPredictionSystemGroup>().PredictingTick;
-
         Entities
             .WithName("CharacterControllerStepSystem")
             .ForEach((
@@ -180,7 +179,7 @@ public class CharacterControllerStepSystem : JobComponentSystem
                 if (!GhostPredictionSystemGroup.ShouldPredict(PredictingTick, predictedGhostComponent))
                     return;
 
-
+                //GameDebug.Log($"{time.tickDuration} : {time.tickInterval} : {UnityEngine.Time.fixedDeltaTime}");
                 var stepInput = new CharacterControllerUtilities.CharacterControllerStepInput
                 {
                     World = physicsWorld,
@@ -207,7 +206,9 @@ public class CharacterControllerStepSystem : JobComponentSystem
 
                 var collider = (Unity.Physics.Collider*)ccCollider.Collider.GetUnsafePtr();
 
-                //GameDebug.Log($"1 {velocity.Velocity}");
+                //GameDebug.Log($"- 1 {math.length(velocity.Velocity)} : {math.length(velocity.Velocity) * time.tickDuration}");
+                //GameDebug.Log($"- 1 {dt} : {time.tickDuration} : {UnityEngine.Time.deltaTime}");
+                var oldpos = transform.pos;
                 // World collision + integrate
                 CharacterControllerUtilities.CollideAndIntegrate(
                     stepInput,
@@ -218,7 +219,7 @@ public class CharacterControllerStepSystem : JobComponentSystem
                     ref velocity.Velocity,
                     ref writer);
 
-                //GameDebug.Log($"2 {velocity.Velocity}");
+                //GameDebug.Log($"- 2 {math.length(oldpos - transform.pos)}");
                 moveResult.MoveResult = transform.pos;
             }).Run();
 

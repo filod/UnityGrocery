@@ -96,7 +96,6 @@ public class InputSystem
 
         command.lookPitch += deltaMousePos.y * configMouseSensitivity.FloatValue;
         command.lookPitch = Mathf.Clamp(command.lookPitch, 0, 180);
-
         command.buttons.Or(UserCommand.Button.Jump, GatedInput.GetKeyDown(KeyCode.Space) || GatedInput.GetKeyDown(KeyCode.Joystick1Button0));
         command.buttons.Or(UserCommand.Button.JumpHold, GatedInput.GetKey(KeyCode.Space) || GatedInput.GetKey(KeyCode.Joystick1Button0));
         command.buttons.Or(UserCommand.Button.Boost, GatedInput.GetKey(KeyCode.B) || GatedInput.GetKey(KeyCode.Joystick1Button4));

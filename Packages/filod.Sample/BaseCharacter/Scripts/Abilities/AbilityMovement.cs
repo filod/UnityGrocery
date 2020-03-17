@@ -284,7 +284,8 @@ public class AbilityMovement
                 //                }
                 //GameDebug.Log($"1 {charPredictedState.velocity}");
                 // Calculate movement and move character
-                var newVelocity = CalculateVelocity(time, ref groundState, ref settings, ref predictedState, ref charPredictedState, command, out var followGround, out var checkSupport);
+                var dt = time.tickDuration;
+                var newVelocity = CalculateVelocity(dt, ref groundState, ref settings, ref predictedState, ref charPredictedState, command, out var followGround, out var checkSupport);
                 //GameDebug.Log($"2 {newVelocity}");
 
                 // Setup movement query
@@ -301,7 +302,7 @@ public class AbilityMovement
                 characterPredictedDataFromEntity[activeAbility.owner] = charPredictedState;
             }
 
-            float3 CalculateVelocity(GameTime gameTime, ref CharacterControllerGroundSupportData groundState, ref Settings settings, ref PredictedState predictedState, ref Character.PredictedData charPredicted, UserCommand command, out bool followGround, out bool checkSupport)
+            float3 CalculateVelocity(float dt, ref CharacterControllerGroundSupportData groundState, ref Settings settings, ref PredictedState predictedState, ref Character.PredictedData charPredicted, UserCommand command, out bool followGround, out bool checkSupport)
             {
                 var velocity = charPredicted.velocity;
                 switch (predictedState.locoState)
@@ -311,7 +312,7 @@ public class AbilityMovement
                     case LocoState.DoubleJump:
                         {
                             // In jump we overwrite velocity y component with linear movement up
-                            velocity = CalculateGroundVelocity(velocity, ref groundState, ref command, settings.easterBunny, settings.playerSpeed, settings.playerAirFriction, settings.playerAiracceleration, gameTime.tickDuration);
+                            velocity = CalculateGroundVelocity(velocity, ref groundState, ref command, settings.easterBunny, settings.playerSpeed, settings.playerAirFriction, settings.playerAiracceleration, dt);
                             velocity.y = settings.jumpAscentVelocity;
                             followGround = false;
                             checkSupport = false;
@@ -322,13 +323,13 @@ public class AbilityMovement
                             var gravity = settings.playerGravity;
                             // better jump https://www.youtube.com/watch?v=7KiK0Aqtmzc
                             if (velocity.y <= 0)
-                                velocity += (float3)Vector3.down * gravity * (settings.fallMutiplier - 1) * gameTime.tickDuration;
+                                velocity += (float3)Vector3.down * gravity * (settings.fallMutiplier - 1) * dt;
                             else {
                                 var downMutipilier = command.buttons.IsSet(UserCommand.Button.JumpHold) ? 1 : settings.lowJumpMutiplier - 1;
-                                //GameDebug.Log($"- jumpMutipilier {jumpMutipilier} {command.buttons.IsSet(UserCommand.Button.Jump)}");
-                                velocity += (float3)Vector3.down * gravity * downMutipilier * gameTime.tickDuration;
+                                //GameDebug.Log($"- jumpMutipilier {downMutipilier} {command.buttons.IsSet(UserCommand.Button.JumpHold)}");
+                                velocity += (float3)Vector3.down * gravity * downMutipilier * dt;
                             }
-                            velocity = CalculateGroundVelocity(velocity, ref groundState, ref command, settings.easterBunny, settings.playerSpeed, settings.playerAirFriction, settings.playerAiracceleration, gameTime.tickDuration);
+                            velocity = CalculateGroundVelocity(velocity, ref groundState, ref command, settings.easterBunny, settings.playerSpeed, settings.playerAirFriction, settings.playerAiracceleration, dt);
 
                             if (velocity.y < -settings.maxFallVelocity)
                                 velocity.y = -settings.maxFallVelocity;
@@ -343,7 +344,7 @@ public class AbilityMovement
                     var playerSpeed = charPredicted.sprinting ? settings.playerSprintSpeed : settings.playerSpeed;
 
                     velocity.y = 0;
-                    velocity = CalculateGroundVelocity(velocity, ref groundState, ref command, settings.easterBunny, playerSpeed, settings.playerFriction, settings.playerAcceleration, gameTime.tickDuration);
+                    velocity = CalculateGroundVelocity(velocity, ref groundState, ref command, settings.easterBunny, playerSpeed, settings.playerFriction, settings.playerAcceleration, dt);
 
                     followGround = true;
                     checkSupport = true;
@@ -354,7 +355,8 @@ public class AbilityMovement
 
             Vector3 CalculateGroundVelocity(Vector3 velocity, ref CharacterControllerGroundSupportData groundState, ref UserCommand command, bool easterBunny, float playerSpeed, float friction, float acceleration, float deltaTime)
             {
-                //velocity = velocity - (Vector3)groundState.SurfaceVelocity;
+                //GameDebug.Log($"2 groundState.SurfaceVelocity {groundState.SurfaceVelocity}");
+                velocity = velocity - (Vector3)groundState.SurfaceVelocity;
                 var moveYawRotation = Quaternion.Euler(0, command.lookYaw + command.moveYaw, 0);
                 var moveVec = moveYawRotation * Vector3.forward * command.moveMagnitude;
 
@@ -391,7 +393,7 @@ public class AbilityMovement
                 velocity.x = groundVelocity.x;
                 velocity.z = groundVelocity.z;
 
-                //velocity += (Vector3)groundState.SurfaceVelocity;
+                velocity += (Vector3)groundState.SurfaceVelocity;
                 return velocity;
             }
         }

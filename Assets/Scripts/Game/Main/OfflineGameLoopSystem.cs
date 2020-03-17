@@ -6,7 +6,24 @@ using Unity.Networking.Transport;
 using Unity.Scenes;
 using UnityEngine.Profiling;
 using Unity.NetCode;
+using Unity.Transforms;
 using Unity.Sample.Core;
+using Unity.Physics.Systems;
+
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(ExportPhysicsWorld)), UpdateBefore(typeof(EndFramePhysicsSystem))]
+[AlwaysUpdateSystem]
+[AlwaysSynchronizeSystem]
+public class OfflineSimulationUpdateSystem : JobComponentSystem
+{
+    public OfflineGameWorld GameWorld;
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    {
+        if (GameWorld != null)
+            GameWorld.Update(Time.DeltaTime, UnityEngine.Time.frameCount);
+        return default;
+    }
+}
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [AlwaysUpdateSystem]
@@ -16,7 +33,7 @@ public class OfflineLateUpdateSystem : JobComponentSystem
     public OfflineGameWorld GameWorld;
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        if (GameWorld != null && !HasSingleton<ThinClientComponent>())
+        if (GameWorld != null)
             GameWorld.LateUpdate(Time.DeltaTime);
         return default;
     }
@@ -161,12 +178,13 @@ public class OfflineGameWorld
     uint m_lastCommandTick;
 }
 
-[UpdateInGroup(typeof(CustomInitializationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 [AlwaysUpdateSystem]
 public class OfflineGameLoopSystem : ComponentSystem
 {
     protected override void OnCreate()
     {
+        if (!GameBootStrap.offline) return;
         GameDebug.Log("OnCreate: OfflineGameLoopSystem");
         m_GameWorld = World;
 
@@ -180,8 +198,9 @@ public class OfflineGameLoopSystem : ComponentSystem
     }
     protected override void OnUpdate()
     {
+        if (!GameBootStrap.offline) return;
         m_StateMachine.Update();
-        m_offlineGameWorld?.Update(Time.DeltaTime, UnityEngine.Time.frameCount);
+        //m_offlineGameWorld?.Update(Time.DeltaTime, UnityEngine.Time.frameCount);
     }
     protected override void OnDestroy()
     {
@@ -205,8 +224,8 @@ public class OfflineGameLoopSystem : ComponentSystem
         entityManager.AddBuffer<UserCommand>(playerEntity);
         Console.SetOpen(false);
         //entityManager.SetComponentData(client, new CommandTargetComponent { targetEntity = playerEntity });
-        var lateUpdate = m_GameWorld.GetExistingSystem<OfflineLateUpdateSystem>();
-        lateUpdate.GameWorld = m_offlineGameWorld;
+        m_GameWorld.GetExistingSystem<OfflineLateUpdateSystem>().GameWorld = m_offlineGameWorld;
+        m_GameWorld.GetExistingSystem<OfflineSimulationUpdateSystem>().GameWorld = m_offlineGameWorld;
     }
     void UpdatePlayingState()
     {

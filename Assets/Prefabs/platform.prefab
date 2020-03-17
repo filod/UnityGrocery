@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 8525862599899175381}
   - component: {fileID: 8525862599899175380}
   - component: {fileID: 8525862599899175339}
-  - component: {fileID: 8525862599899175383}
   - component: {fileID: 8525862599899175336}
+  - component: {fileID: 8525862599899175383}
   m_Layer: 0
   m_Name: platform
   m_TagString: Untagged
@@ -155,28 +155,6 @@ MonoBehaviour:
       m_Override: 0
       m_Value: 0000000000000000
   m_ConvexRadius_Deprecated: -1
---- !u!114 &8525862599899175383
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8525862599899175382}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b69e64f3c2a670142989710ce9cb2ff1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Height: 1
-  Speed: 1
-  Direction:
-    x: 0
-    y: 0
-    z: 2
-  Rotation:
-    x: 0
-    y: 0
-    z: 0
 --- !u!114 &8525862599899175336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,3 +204,25 @@ MonoBehaviour:
     Tag05: 0
     Tag06: 0
     Tag07: 0
+--- !u!114 &8525862599899175383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8525862599899175382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb12886569f0fbf44a7bf0f429406b81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Height: 2
+  Speed: 1
+  Direction:
+    x: 0
+    y: 0
+    z: 2
+  Rotation:
+    x: 0
+    y: 0
+    z: 0

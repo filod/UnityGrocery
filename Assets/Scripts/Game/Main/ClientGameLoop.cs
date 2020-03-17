@@ -39,6 +39,7 @@ public class BeforeClientPredictionSystem : JobComponentSystem
         return default;
     }
 }
+
 [UpdateInGroup(typeof(ClientSimulationSystemGroup))]
 [UpdateAfter(typeof(GhostSimulationSystemGroup))]
 //[UpdateBefore(typeof(Unity.Animation.AnimationSystemGroup))]
@@ -68,6 +69,7 @@ public class ClientPredictionSystem : JobComponentSystem
         return default;
     }
 }
+
 [UpdateInGroup(typeof(ClientPresentationSystemGroup))]
 [AlwaysUpdateSystem]
 [AlwaysSynchronizeSystem]

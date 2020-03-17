@@ -7,9 +7,7 @@ using Unity.Physics.Systems;
 using Unity.NetCode;
 
 [UpdateInGroup(typeof(AbilityUpdateSystemGroup))]
-[UpdateAfter(typeof(CharacterControllerStepSystem))]
-[UpdateAfter(typeof(MovementUpdatePhase))]
-[UpdateBefore(typeof(MovementResolvePhase))]
+[UpdateBefore(typeof(MovementUpdatePhase))]
 [DisableAutoCreation]
 [AlwaysSynchronizeSystem]
 [AlwaysUpdateSystem]
@@ -55,7 +53,7 @@ public class CharacterControllerCheckSupportSystem : JobComponentSystem
                     var stepInput = new CharacterControllerUtilities.CharacterControllerStepInput
                     {
                         World = physicsWorld,
-                        DeltaTime = time.tickInterval,
+                        DeltaTime = time.tickDuration,
                         Up = math.up(),
                         Gravity = new float3(0.0f, -9.8f, 0.0f),
                         MaxIterations = ccData.MaxIterations,
@@ -91,6 +89,8 @@ public class CharacterControllerCheckSupportSystem : JobComponentSystem
                         out ccGroundData.SupportedState,
                         out ccGroundData.SurfaceNormal,
                         out ccGroundData.SurfaceVelocity);
+
+                    //Unity.Sample.Core.GameDebug.Log($"2 groundState.SurfaceVelocity {ccGroundData.SurfaceVelocity}");
                 }).Run();
 
 
