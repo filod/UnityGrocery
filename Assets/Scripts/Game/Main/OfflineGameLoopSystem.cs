@@ -8,6 +8,20 @@ using UnityEngine.Profiling;
 using Unity.NetCode;
 using Unity.Sample.Core;
 
+[UpdateInGroup(typeof(PresentationSystemGroup))]
+[AlwaysUpdateSystem]
+[AlwaysSynchronizeSystem]
+public class OfflineLateUpdateSystem : JobComponentSystem
+{
+    public OfflineGameWorld GameWorld;
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    {
+        if (GameWorld != null && !HasSingleton<ThinClientComponent>())
+            GameWorld.LateUpdate(Time.DeltaTime);
+        return default;
+    }
+}
+
 
 public class OfflineGameWorld
 {
@@ -15,7 +29,10 @@ public class OfflineGameWorld
     {
         m_GameWorld = world;
 
-        m_PlayerModule = new PlayerModuleClient(m_GameWorld);
+        m_GameModeSystem = m_GameWorld.CreateSystem<GameModeSystemServer>(m_GameWorld);
+
+        m_PlayerModuleClient = new PlayerModuleClient(m_GameWorld);
+        m_PlayerModuleServer = new PlayerModuleServer(m_GameWorld);
 
         m_HandleDamageGroup = m_GameWorld.CreateSystem<HandleDamageSystemGroup>();
         m_DamageAreaSystem = m_GameWorld.CreateSystem<DamageAreaSystemServer>();
@@ -39,44 +56,84 @@ public class OfflineGameWorld
         m_controlledEntityCameraUpdate = m_GameWorld.GetOrCreateSystem<ControlledEntityCameraUpdate>();
         m_controlledEntityCameraUpdate.SortSystemUpdateList();// TODO (mogensh) currently needed because of bug in entities preview.26
 
-        //@TODO: Temp hack for unite keynote to hide error
-        Debug.developerConsoleVisible = false;
     }
     void HandleTime(float frameDuration, int tick)
     {
         bool userInputEnabled = InputSystem.GetMousePointerLock();
-        m_PlayerModule.SampleInput(m_GameWorld, userInputEnabled, frameDuration, m_RenderTime.tick);
         m_RenderTime.tick = tick;
         m_RenderTime.tickDuration = frameDuration;
 
-        m_PlayerModule.StoreCommand(m_RenderTime.tick);
+        if (tick != m_lastCommandTick)
+        {
+            m_lastCommandTick = (uint)tick;
+            m_PlayerModuleClient.ResetInput(userInputEnabled);
+        }
+
+
+        m_PlayerModuleClient.SampleInput(m_GameWorld, userInputEnabled, frameDuration, m_RenderTime.tick);
+        m_PlayerModuleClient.StoreCommand(m_RenderTime.tick);
     }
     public Entity RegisterLocalPlayer(int playerId)
     {
-        m_localPlayer = m_PlayerModule.RegisterLocalPlayer(playerId);
+        m_localPlayer = m_PlayerModuleClient.RegisterLocalPlayer(playerId);
         return m_localPlayer;
     }
     public void Update(float frameDuration, int tick)
     {
+        //GameDebug.Log($"tick {tick}");
         HandleTime(frameDuration, tick);
         var gameTimeSystem = m_GameWorld.GetExistingSystem<GameTimeSystem>();
         gameTimeSystem.SetWorldTime(m_RenderTime);
         gameTimeSystem.frameDuration = frameDuration;
         m_DamageAreaSystem.Update();
 
-        m_PlayerModule.ResolveReferenceFromLocalPlayerToPlayer();
-        m_PlayerModule.HandleCommandReset();
-        m_PlayerModule.HandleSpawn();
+        m_PlayerModuleClient.ResolveReferenceFromLocalPlayerToPlayer();
+        m_PlayerModuleClient.HandleCommandReset();
+        m_PlayerModuleClient.HandleSpawn();
 
+        m_PlayerModuleClient.RetrieveCommand((uint)tick);
         //m_GameModeSystem.Update();
 
         m_ManualComponentSystemGroup.Update();
 
-        m_PlayerModule.HandleControlledEntityChanged();
+        m_PlayerModuleClient.HandleControlledEntityChanged();
 
         m_HandleDamageGroup.Update();
 
         m_ClientLateUpdate.Update();
+
+        m_GameModeSystem.Update();
+    }
+
+    public void LateUpdate(float frameDuration)
+    {
+        var gameTimeSystem = m_GameWorld.GetExistingSystem<GameTimeSystem>();
+        gameTimeSystem.SetWorldTime(m_RenderTime);
+
+        var localPlayerState = m_GameWorld.EntityManager.GetComponentData<LocalPlayer>(m_localPlayer);
+        if (localPlayerState.playerEntity != Entity.Null)
+        {
+            var playerState = m_GameWorld.EntityManager.GetComponentData<Player.State>(localPlayerState.playerEntity);
+            if (playerState.controlledEntity != Entity.Null)
+            {
+                if (m_GameWorld.EntityManager.HasComponent<HealthStateData>(playerState.controlledEntity))
+                {
+                    var healthState = m_GameWorld.EntityManager.GetComponentData<HealthStateData>(playerState.controlledEntity);
+                }
+
+            }
+        }
+
+        m_ClientLateUpdate.Update();
+
+        m_controlledEntityCameraUpdate.Update();
+
+        m_PlayerModuleClient.CameraUpdate();
+
+        gameTimeSystem.SetWorldTime(m_RenderTime);
+
+        //gameTimeSystem.SetWorldTime(m_PredictedTime);
+
     }
 
     bool isDestroyingWorld;
@@ -86,7 +143,9 @@ public class OfflineGameWorld
     // External systems
 
     // Internal systems
-    readonly PlayerModuleClient m_PlayerModule;
+    readonly GameModeSystemServer m_GameModeSystem;
+    public readonly PlayerModuleClient m_PlayerModuleClient;
+    public readonly PlayerModuleServer m_PlayerModuleServer;
 
     readonly DamageAreaSystemServer m_DamageAreaSystem;
 
@@ -141,7 +200,13 @@ public class OfflineGameLoopSystem : ComponentSystem
         var clientId = 2333;
         m_offlineGameWorld = new OfflineGameWorld(m_GameWorld, clientId);
         m_LocalPlayer = m_offlineGameWorld.RegisterLocalPlayer(clientId);
-
+        var entityManager = m_GameWorld.EntityManager;
+        var playerEntity = m_offlineGameWorld.m_PlayerModuleServer.CreatePlayerEntity(m_GameWorld, clientId, 0, "", true);
+        entityManager.AddBuffer<UserCommand>(playerEntity);
+        Console.SetOpen(false);
+        //entityManager.SetComponentData(client, new CommandTargetComponent { targetEntity = playerEntity });
+        var lateUpdate = m_GameWorld.GetExistingSystem<OfflineLateUpdateSystem>();
+        lateUpdate.GameWorld = m_offlineGameWorld;
     }
     void UpdatePlayingState()
     {

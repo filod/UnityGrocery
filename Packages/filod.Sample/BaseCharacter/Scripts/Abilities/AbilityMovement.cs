@@ -448,6 +448,7 @@ public class AbilityMovement
             {
                 if (!characterMoveResultFromEntity.HasComponent(activeAbility.owner))
                     return;
+                //GameDebug.Log($"{predictedFromEntity.Exists(activeAbility.owner) && !GhostPredictionSystemGroup.ShouldPredict(PredictingTick, predictedFromEntity[activeAbility.owner])} : {PredictingTick}");
                 if (predictedFromEntity.Exists(activeAbility.owner) && !GhostPredictionSystemGroup.ShouldPredict(PredictingTick, predictedFromEntity[activeAbility.owner]))
                     return;
                 
@@ -456,7 +457,7 @@ public class AbilityMovement
                 var velocity = characterVelocityFromEntity[activeAbility.owner];
                 var groundData = characterGroundStateFromEntity[activeAbility.owner];
                 var command = playerControlledStateFromEntity[activeAbility.owner].command;
-
+                //GameDebug.Log($"command.moveMagnitude: {command.moveMagnitude}");
                 // Check for ground change (hitting ground or leaving ground) 
                 var isOnGround = predictedState.IsOnGround();
                 var newIsOnGround = groundData.SupportedState != CharacterControllerUtilities.CharacterSupportState.Unsupported;

@@ -198,7 +198,7 @@ public class PlayerModuleClient
         var buf = world.EntityManager.GetBuffer<UserCommand>(localPlayer);
 
         localPlayerState.command.checkTick = tick;
-        localPlayerState.command.tick = world.GetExistingSystem<ClientSimulationSystemGroup>().ServerTick;
+        localPlayerState.command.tick = GameBootStrap.offline ? (uint)tick : world.GetExistingSystem<ClientSimulationSystemGroup>().ServerTick;
         buf.AddCommandData(localPlayerState.command);
         world.EntityManager.SetComponentData(localPlayer, localPlayerState);
     }

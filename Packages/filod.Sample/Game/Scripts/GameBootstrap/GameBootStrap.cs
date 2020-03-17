@@ -18,6 +18,32 @@ public class CustomInitializationSystemGroup : InitializationSystemGroup
 {
 }
 
+ [InitializeOnLoad]
+public static class CheckmarkMenuItem
+{
+    public const string MENU_NAME = "A2/Offline Mode";
+    private static bool enabled_;
+    static CheckmarkMenuItem()
+    {
+        CheckmarkMenuItem.enabled_ = EditorPrefs.GetBool(CheckmarkMenuItem.MENU_NAME, false);
+        EditorApplication.delayCall += () => {
+            PerformAction(CheckmarkMenuItem.enabled_);
+        };
+    }
+
+    [MenuItem(CheckmarkMenuItem.MENU_NAME)]
+    private static void ToggleAction()
+    {
+        PerformAction(!CheckmarkMenuItem.enabled_);
+    }
+    public static void PerformAction(bool enabled)
+    {
+        Menu.SetChecked(CheckmarkMenuItem.MENU_NAME, enabled);
+        EditorPrefs.SetBool(CheckmarkMenuItem.MENU_NAME, enabled);
+        CheckmarkMenuItem.enabled_ = enabled;
+    }
+}
+
 
 // Use the GameBootStrap to get in early and grab a copy of the system types
 public class GameBootStrap : ClientServerBootstrap
@@ -43,7 +69,7 @@ public class GameBootStrap : ClientServerBootstrap
 
     static List<Type> s_Systems = null;
 
-    static public bool offline = false;
+    static public bool offline { get { return UnityEditor.EditorPrefs.GetBool(CheckmarkMenuItem.MENU_NAME); } }
 
 #if UNITY_EDITOR
     public static bool IsSingleLevelPlaymode { get; private set; }
