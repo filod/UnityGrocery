@@ -98,6 +98,7 @@ public class InputSystem
         command.lookPitch = Mathf.Clamp(command.lookPitch, 0, 180);
         command.buttons.Or(UserCommand.Button.Jump, GatedInput.GetKeyDown(KeyCode.Space) || GatedInput.GetKeyDown(KeyCode.Joystick1Button0));
         command.buttons.Or(UserCommand.Button.JumpHold, GatedInput.GetKey(KeyCode.Space) || GatedInput.GetKey(KeyCode.Joystick1Button0));
+        command.buttons.Or(UserCommand.Button.SurfaceGrab, GatedInput.GetMouseButton(1) || GatedInput.GetAxisRaw("Left Trigger") > 0.5f);
         command.buttons.Or(UserCommand.Button.Boost, GatedInput.GetKey(KeyCode.B) || GatedInput.GetKey(KeyCode.Joystick1Button4));
         command.buttons.Or(UserCommand.Button.PrimaryFire, (GatedInput.GetMouseButton(0) && GetMousePointerLock()) || GatedInput.GetAxisRaw("Right Trigger") > 0.5f);
         command.buttons.Or(UserCommand.Button.SecondaryFire, GatedInput.GetMouseButton(1) || GatedInput.GetKey(KeyCode.Joystick1Button5));

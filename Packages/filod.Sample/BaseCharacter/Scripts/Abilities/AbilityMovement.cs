@@ -19,7 +19,11 @@ public class AbilityMovement
         InAir,
         MaxValue
     }
-
+    public enum OrientationMode
+    {
+        TowardsMovement,
+        TowardsLook,
+    }
     public const Ability.AbilityTagValue Tag = Ability.AbilityTagValue.Movement;
 
 
@@ -54,6 +58,7 @@ public class AbilityMovement
         [GhostDefaultField]
         public bool crouching;
         public int lastGroundMoveTick;
+        public OrientationMode OrientationMode;
 
         public bool IsOnGround()
         {
@@ -164,6 +169,49 @@ public class AbilityMovement
             m_charCollisionALayer = LayerMask.NameToLayer("CharCollisionA");
             m_charCollisionBLayer = LayerMask.NameToLayer("CharCollisionB");
         }
+        public static Vector3 CalculateGroundVelocity(Vector3 velocity, float3 SurfaceVelocity, ref UserCommand command, bool easterBunny, float playerSpeed, float friction, float acceleration, float deltaTime)
+        {
+            //GameDebug.Log($"2 groundState.SurfaceVelocity {groundState.SurfaceVelocity}");
+            velocity = velocity - (Vector3)SurfaceVelocity;
+            var moveYawRotation = Quaternion.Euler(0, command.lookYaw + command.moveYaw, 0);
+            var moveVec = moveYawRotation * Vector3.forward * command.moveMagnitude;
+
+            // Applying friction
+            var groundVelocity = new Vector3(velocity.x, 0, velocity.z);
+            var groundSpeed = groundVelocity.magnitude;
+            var frictionSpeed = Mathf.Max(groundSpeed, 1.0f) * deltaTime * friction;
+            var newGroundSpeed = groundSpeed - frictionSpeed;
+            if (newGroundSpeed < 0)
+                newGroundSpeed = 0;
+            if (groundSpeed > 0)
+                groundVelocity *= (newGroundSpeed / groundSpeed);
+
+            // Doing actual movement (q2 style)
+            var wantedGroundVelocity = moveVec * playerSpeed;
+            var wantedGroundDir = wantedGroundVelocity.normalized;
+            var currentSpeed = Vector3.Dot(wantedGroundDir, groundVelocity);
+            var wantedSpeed = playerSpeed * command.moveMagnitude;
+            var deltaSpeed = wantedSpeed - currentSpeed;
+            if (deltaSpeed > 0.0f)
+            {
+                var accel = deltaTime * acceleration * playerSpeed;
+                var speed_adjustment = Mathf.Clamp(accel, 0.0f, deltaSpeed) * wantedGroundDir;
+                groundVelocity += speed_adjustment;
+            }
+
+            if (!easterBunny)
+            {
+                newGroundSpeed = groundVelocity.magnitude;
+                if (newGroundSpeed > playerSpeed)
+                    groundVelocity *= playerSpeed / newGroundSpeed;
+            }
+
+            velocity.x = groundVelocity.x;
+            velocity.z = groundVelocity.z;
+
+            velocity += (Vector3)SurfaceVelocity;
+            return velocity;
+        }
 
         struct UpdateJob
         {
@@ -172,6 +220,7 @@ public class AbilityMovement
             public int charCollisionBLayer;
             public ComponentDataFromEntity<PlayerControlled.State> playerControlledStateFromEntity;
             public ComponentDataFromEntity<Character.PredictedData> characterPredictedDataFromEntity;
+            public ComponentDataFromEntity<Character.InterpolatedData> characterInterpolatedDataFromEntity;
             public ComponentDataFromEntity<CharacterControllerMoveQuery> characterStartPositionFromEntity;
             public ComponentDataFromEntity<CharacterControllerGroundSupportData> characterGroundDataFromEntity;
             public ComponentDataFromEntity<CharacterControllerVelocity> characterVelocityFromEntity;
@@ -193,16 +242,17 @@ public class AbilityMovement
                 var command = alive ? playerControlledStateFromEntity[activeAbility.owner].command : UserCommand.defaultCommand;
 
                 var charPredictedState = characterPredictedDataFromEntity[activeAbility.owner];
+                var charInterpolatedState = characterInterpolatedDataFromEntity[activeAbility.owner];
                 var startPosition = characterStartPositionFromEntity[activeAbility.owner];
                 var groundState = characterGroundDataFromEntity[activeAbility.owner];
 
                 var newPhase = LocoState.MaxValue;
 
-                var supported = groundState.SupportedState == CharacterControllerUtilities.CharacterSupportState.Supported;
-                supported = groundState.SupportedState != CharacterControllerUtilities.CharacterSupportState.Unsupported;
+                var supported = groundState.SupportedState != CharacterControllerUtilities.CharacterSupportState.Unsupported;
                 //var sliding = groundState.SupportedState == CharacterControllerUtilities.CharacterSupportState.Sliding;
                 //var unsupported = groundState.SupportedState == CharacterControllerUtilities.CharacterSupportState.Unsupported;
                 var isMoveWanted = command.moveMagnitude != 0.0f;
+
                 // Ground movement
                 if (supported)
                 {
@@ -288,6 +338,27 @@ public class AbilityMovement
                 var newVelocity = CalculateVelocity(dt, ref groundState, ref settings, ref predictedState, ref charPredictedState, command, out var followGround, out var checkSupport);
                 //GameDebug.Log($"2 {newVelocity}");
 
+
+                // TODO (filod): this should be done in AnimSourceStand.
+                if (predictedState.OrientationMode == OrientationMode.TowardsMovement && isMoveWanted)
+                {
+                    var angle = command.lookYaw + command.moveYaw;
+                    if (angle > 360f) angle -= 360.0f;
+                    if (angle < 0f) angle += 360.0f;
+                    var deltaAngle = dt * 720f;
+                    //GameDebug.Log($"angle {angle}");
+                    var rotateAngleRemaining = MathHelper.DeltaAngle(charInterpolatedState.rotation, angle);
+                    var absAngleRemaining = math.abs(rotateAngleRemaining);
+                    var sign = (rotateAngleRemaining >= 0F ? 1F : -1F);
+                    if (deltaAngle > absAngleRemaining)
+                    {
+                        deltaAngle = absAngleRemaining;
+                    }
+                    charInterpolatedState.rotation += sign * deltaAngle;
+                    //charInterpolatedState.rotation = math.lerp(charInterpolatedState.rotation, angle, 1 - math.exp(-10 * dt));
+                    characterInterpolatedDataFromEntity[activeAbility.owner] = charInterpolatedState;
+                }
+
                 // Setup movement query
                 startPosition.StartPosition = charPredictedState.position;
                 startPosition.FollowGround = followGround;
@@ -312,7 +383,7 @@ public class AbilityMovement
                     case LocoState.DoubleJump:
                         {
                             // In jump we overwrite velocity y component with linear movement up
-                            velocity = CalculateGroundVelocity(velocity, ref groundState, ref command, settings.easterBunny, settings.playerSpeed, settings.playerAirFriction, settings.playerAiracceleration, dt);
+                            velocity = CalculateGroundVelocity(velocity, groundState.SurfaceVelocity, ref command, settings.easterBunny, settings.playerSpeed, settings.playerAirFriction, settings.playerAiracceleration, dt);
                             velocity.y = settings.jumpAscentVelocity;
                             followGround = false;
                             checkSupport = false;
@@ -329,7 +400,7 @@ public class AbilityMovement
                                 //GameDebug.Log($"- jumpMutipilier {downMutipilier} {command.buttons.IsSet(UserCommand.Button.JumpHold)}");
                                 velocity += (float3)Vector3.down * gravity * downMutipilier * dt;
                             }
-                            velocity = CalculateGroundVelocity(velocity, ref groundState, ref command, settings.easterBunny, settings.playerSpeed, settings.playerAirFriction, settings.playerAiracceleration, dt);
+                            velocity = CalculateGroundVelocity(velocity, groundState.SurfaceVelocity, ref command, settings.easterBunny, settings.playerSpeed, settings.playerAirFriction, settings.playerAiracceleration, dt);
 
                             if (velocity.y < -settings.maxFallVelocity)
                                 velocity.y = -settings.maxFallVelocity;
@@ -344,7 +415,7 @@ public class AbilityMovement
                     var playerSpeed = charPredicted.sprinting ? settings.playerSprintSpeed : settings.playerSpeed;
 
                     velocity.y = 0;
-                    velocity = CalculateGroundVelocity(velocity, ref groundState, ref command, settings.easterBunny, playerSpeed, settings.playerFriction, settings.playerAcceleration, dt);
+                    velocity = CalculateGroundVelocity(velocity, groundState.SurfaceVelocity, ref command, settings.easterBunny, playerSpeed, settings.playerFriction, settings.playerAcceleration, dt);
 
                     followGround = true;
                     checkSupport = true;
@@ -353,49 +424,6 @@ public class AbilityMovement
 
             }
 
-            Vector3 CalculateGroundVelocity(Vector3 velocity, ref CharacterControllerGroundSupportData groundState, ref UserCommand command, bool easterBunny, float playerSpeed, float friction, float acceleration, float deltaTime)
-            {
-                //GameDebug.Log($"2 groundState.SurfaceVelocity {groundState.SurfaceVelocity}");
-                velocity = velocity - (Vector3)groundState.SurfaceVelocity;
-                var moveYawRotation = Quaternion.Euler(0, command.lookYaw + command.moveYaw, 0);
-                var moveVec = moveYawRotation * Vector3.forward * command.moveMagnitude;
-
-                // Applying friction
-                var groundVelocity = new Vector3(velocity.x, 0, velocity.z);
-                var groundSpeed = groundVelocity.magnitude;
-                var frictionSpeed = Mathf.Max(groundSpeed, 1.0f) * deltaTime * friction;
-                var newGroundSpeed = groundSpeed - frictionSpeed;
-                if (newGroundSpeed < 0)
-                    newGroundSpeed = 0;
-                if (groundSpeed > 0)
-                    groundVelocity *= (newGroundSpeed / groundSpeed);
-
-                // Doing actual movement (q2 style)
-                var wantedGroundVelocity = moveVec * playerSpeed;
-                var wantedGroundDir = wantedGroundVelocity.normalized;
-                var currentSpeed = Vector3.Dot(wantedGroundDir, groundVelocity);
-                var wantedSpeed = playerSpeed * command.moveMagnitude;
-                var deltaSpeed = wantedSpeed - currentSpeed;
-                if (deltaSpeed > 0.0f)
-                {
-                    var accel = deltaTime * acceleration * playerSpeed;
-                    var speed_adjustment = Mathf.Clamp(accel, 0.0f, deltaSpeed) * wantedGroundDir;
-                    groundVelocity += speed_adjustment;
-                }
-
-                if (!easterBunny)
-                {
-                    newGroundSpeed = groundVelocity.magnitude;
-                    if (newGroundSpeed > playerSpeed)
-                        groundVelocity *= playerSpeed / newGroundSpeed;
-                }
-
-                velocity.x = groundVelocity.x;
-                velocity.z = groundVelocity.z;
-
-                velocity += (Vector3)groundState.SurfaceVelocity;
-                return velocity;
-            }
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -409,6 +437,7 @@ public class AbilityMovement
                 charCollisionBLayer = m_charCollisionBLayer,
                 playerControlledStateFromEntity = GetComponentDataFromEntity<PlayerControlled.State>(true),
                 characterPredictedDataFromEntity = GetComponentDataFromEntity<Character.PredictedData>(false),
+                characterInterpolatedDataFromEntity = GetComponentDataFromEntity<Character.InterpolatedData>(false),
                 characterStartPositionFromEntity = GetComponentDataFromEntity<CharacterControllerMoveQuery>(false),
                 characterGroundDataFromEntity = GetComponentDataFromEntity<CharacterControllerGroundSupportData>(true),
                 characterVelocityFromEntity = GetComponentDataFromEntity<CharacterControllerVelocity>(false),

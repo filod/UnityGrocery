@@ -5,9 +5,12 @@ using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
 using Unity.NetCode;
+using Unity.Sample.Core;
 
 [UpdateInGroup(typeof(AbilityUpdateSystemGroup))]
-[UpdateBefore(typeof(MovementUpdatePhase))]
+[UpdateAfter(typeof(CharacterControllerStepSystem))]
+[UpdateAfter(typeof(MovementUpdatePhase))]
+[UpdateBefore(typeof(MovementResolvePhase))]
 [DisableAutoCreation]
 [AlwaysSynchronizeSystem]
 [AlwaysUpdateSystem]
@@ -88,8 +91,19 @@ public class CharacterControllerCheckSupportSystem : JobComponentSystem
                         transform,
                         out ccGroundData.SupportedState,
                         out ccGroundData.SurfaceNormal,
-                        out ccGroundData.SurfaceVelocity);
+                        out ccGroundData.SurfaceVelocity,
+                        out var constraints);
 
+                    //for (int i = 0; i < constraints.Length; i++)
+                    //{
+                    //    var constraint = constraints[i];
+                    //    DebugDraw.Line(constraint.HitPosition, constraint.HitPosition + constraint.Plane.Normal, constraint.Touched && !constraint.IsTooSteep ? UnityEngine.Color.blue : UnityEngine.Color.red);
+                    //    DebugDraw.Sphere(constraint.HitPosition, 0.1f, constraint.IsTooSteep ? UnityEngine.Color.blue : UnityEngine.Color.red);
+                    //    DebugDraw.Circle(constraint.HitPosition, math.up(), 0.2f, constraint.Touched ? UnityEngine.Color.blue : UnityEngine.Color.red);
+                    //    //DebugDraw.Arrow(constraint.HitPosition, 30f, constraint.Plane.Distance > 0 ? UnityEngine.Color.blue : UnityEngine.Color.red); 
+                    //    //GameDebug.Log($"constraints.dis {constraint.Plane.Distance}"); 
+                    //}
+                    //Unity.Sample.Core.GameDebug.Log($"--- constraints: {numSupportingPlanes}");
                     //Unity.Sample.Core.GameDebug.Log($"2 groundState.SurfaceVelocity {ccGroundData.SurfaceVelocity}");
                 }).Run();
 

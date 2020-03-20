@@ -28,6 +28,7 @@ public struct UserCommand :  ICommandData<UserCommand>
         Ability3 = 1 << 9,
         Crouch = 1 << 10,
         JumpHold = 1 << 11,
+        SurfaceGrab = 1 << 12,
 
         CameraSideSwitch = 1 << 15,
 

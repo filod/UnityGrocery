@@ -31,7 +31,6 @@ public struct CharacterControllerGroundSupportData : IComponentData
     [GhostDefaultField]
     public CharacterSupportState SupportedState;
 }
-
 public struct CharacterControllerMoveQuery : IComponentData
 {
     public float3 StartPosition;

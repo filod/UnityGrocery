@@ -5,8 +5,6 @@ public class AbilityDashAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public AbilityDash.Settings settings = new AbilityDash.Settings
     {
-        dashDistance = 5,
-        dashDuration = 0.3f
     };
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {

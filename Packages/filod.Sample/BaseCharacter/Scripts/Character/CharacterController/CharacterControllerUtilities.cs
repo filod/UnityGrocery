@@ -16,7 +16,7 @@ public struct DeferredCharacterControllerImpulse
 
 public static class CharacterControllerUtilities
 {
-    const float k_SimplexSolverEpsilon = 0.0001f;
+    const float k_SimplexSolverEpsilon = 0.000001f;
     const float k_SimplexSolverEpsilonSq = k_SimplexSolverEpsilon * k_SimplexSolverEpsilon;
 
     const int k_DefaultQueryHitsCapacity = 8;
@@ -209,19 +209,20 @@ public static class CharacterControllerUtilities
 
     public static unsafe void CheckSupport(
         ref PhysicsWorld world, Collider* collider, CharacterControllerStepInput stepInput, RigidTransform transform,
-        out CharacterSupportState characterState, out float3 surfaceNormal, out float3 surfaceVelocity)
+        out CharacterSupportState characterState, out float3 surfaceNormal, out float3 surfaceVelocity, out NativeList<SurfaceConstraintInfo> constraints/*, float3 CastDirection = default*/)
     {
         surfaceNormal = float3.zero;
         surfaceVelocity = float3.zero;
 
         // Up direction must be normalized
-        Assert.IsTrue(Math.IsNormalized(stepInput.Up));
+        //Assert.IsTrue(Math.IsNormalized(stepInput.Up));
 
         // Query the world
         NativeList<ColliderCastHit> castHits = new NativeList<ColliderCastHit>(k_DefaultQueryHitsCapacity, Allocator.Temp);
         SelfFilteringAllHitsCollector<ColliderCastHit> castHitsCollector = new SelfFilteringAllHitsCollector<ColliderCastHit>(
             stepInput.RigidBodyIndex, 1.0f, ref castHits);
-        var maxDisplacement = -stepInput.ContactTolerance * stepInput.Up;
+        //UnityEngine.Debug.Log($"CastDirection {CastDirection}");
+        var maxDisplacement = stepInput.ContactTolerance * -stepInput.Up; //(CastDirection.Equals(default) ? -stepInput.Up : CastDirection);
         {
             ColliderCastInput input = new ColliderCastInput()
             {
@@ -237,13 +238,14 @@ public static class CharacterControllerUtilities
         if (castHitsCollector.NumHits == 0)
         {
             characterState = CharacterSupportState.Unsupported;
+            constraints = new NativeList<SurfaceConstraintInfo>(0, Allocator.Temp);
             return;
         }
 
         float maxSlopeCos = math.cos(stepInput.MaxSlope);
 
         // Iterate over distance hits and create constraints from them
-        NativeList<SurfaceConstraintInfo> constraints = new NativeList<SurfaceConstraintInfo>(k_DefaultConstraintsCapacity, Allocator.Temp);
+        constraints = new NativeList<SurfaceConstraintInfo>(k_DefaultConstraintsCapacity, Allocator.Temp);
         float maxDisplacementLength = math.length(maxDisplacement);
         for (int i = 0; i < castHitsCollector.NumHits; i++)
         {
