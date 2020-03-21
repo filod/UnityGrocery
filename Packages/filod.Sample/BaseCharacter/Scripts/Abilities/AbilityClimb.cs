@@ -94,8 +94,7 @@ public class AbilityClimb
                 transform,
                 out var supportedState,
                 out var SurfaceNormal,
-                out var SurfaceVelocity,
-                out var constraints);
+                out var SurfaceVelocity);
             if (supportedState == CharacterSupportState.Supported)
             {
                 supported = true;
@@ -218,12 +217,16 @@ public class AbilityClimb
                     {
                         var velocity = characterVelocityFromEntity[activeAbility.owner];
 
-                        var newVelocity = charPredictedState.velocity;
-
-                        newVelocity = (float3)(Quaternion.FromToRotation(avgSurfaceNormal, math.up()) * newVelocity);
+                        DebugDraw.Line(startPosition.StartPosition, startPosition.StartPosition + avgSurfaceVelocity, Color.magenta);
+                        var newVelocity = charPredictedState.velocity - avgSurfaceVelocity;
+                        var rotateToNormal = Quaternion.FromToRotation(avgSurfaceNormal, math.up());
+                        var rotateFromNormal = Quaternion.FromToRotation(math.up(), avgSurfaceNormal);
+                        newVelocity = rotateToNormal * newVelocity;
+                        //avgSurfaceVelocity = rotateToNormal * avgSurfaceVelocity;
                         //command.lookYaw = 0; //reset lookYaw
-                        var planeVelocity = AbilityMovement.ActiveUpdate.CalculateGroundVelocity(newVelocity, avgSurfaceVelocity, ref command, true, settings.Speed, settings.Friction, settings.Acceleration, time.tickDuration);
-                        newVelocity = (float3)(Quaternion.FromToRotation(math.up(), avgSurfaceNormal) * planeVelocity);
+                        var planeVelocity = AbilityMovement.ActiveUpdate.CalculateGroundVelocity(newVelocity, 0, ref command, true, settings.Speed, settings.Friction, settings.Acceleration, time.tickDuration);
+                        newVelocity = rotateFromNormal * planeVelocity;
+
                         //DebugDraw.Line(charPredictedState.position, charPredictedState.position + avgSurfaceNormal, UnityEngine.Color.green);
                         var yAxis = new Vector3(0, 1, 0);
 
@@ -264,11 +267,7 @@ public class AbilityClimb
 
                         }
 
-
-
-
-
-                        velocity.Velocity = newVelocity;
+                        velocity.Velocity = newVelocity + avgSurfaceVelocity;
                         characterStartPositionFromEntity[activeAbility.owner] = startPosition;
                         characterVelocityFromEntity[activeAbility.owner] = velocity;
                         characterPredictedDataFromEntity[activeAbility.owner] = charPredictedState;

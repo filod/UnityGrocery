@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -16,7 +17,7 @@ public struct DeferredCharacterControllerImpulse
 
 public static class CharacterControllerUtilities
 {
-    const float k_SimplexSolverEpsilon = 0.000001f;
+    const float k_SimplexSolverEpsilon = 0.0001f;
     const float k_SimplexSolverEpsilonSq = k_SimplexSolverEpsilon * k_SimplexSolverEpsilon;
 
     const int k_DefaultQueryHitsCapacity = 8;
@@ -46,12 +47,7 @@ public static class CharacterControllerUtilities
         public float MaxMovementSpeed;
     }
 
-    // A collector which stores all hits.
-    // To filter out self hits, it stores the rigid body index of the body representing
-    // the character controller. Unfortunately, it needs to do this in TransformNewHits
-    // since during AddHit rigid body index is not exposed.
-    // https://github.com/Unity-Technologies/Unity.Physics/issues/256
-    public struct SelfFilteringAllHitsCollector<T> : ICollector<T> where T : struct, IQueryResult
+    public struct CharacterControllerAllHitsCollector<T> : ICollector<T> where T : struct, IQueryResult
     {
         private int m_selfRBIndex;
 
@@ -61,87 +57,58 @@ public static class CharacterControllerUtilities
 
         public NativeList<T> AllHits;
 
-        public SelfFilteringAllHitsCollector(int rbIndex, float maxFraction, ref NativeList<T> allHits)
+        private PhysicsWorld m_world;
+
+        public CharacterControllerAllHitsCollector(int rbIndex, float maxFraction, ref NativeList<T> allHits, PhysicsWorld world)
         {
             MaxFraction = maxFraction;
             AllHits = allHits;
             m_selfRBIndex = rbIndex;
+            m_world = world;
         }
 
-        #region IQueryResult implementation
+        #region ICollector
 
         public bool AddHit(T hit)
         {
             Assert.IsTrue(hit.Fraction < MaxFraction);
+
+            if ((hit.RigidBodyIndex == m_selfRBIndex) || IsTrigger(m_world.Bodies, hit.RigidBodyIndex, hit.ColliderKey))
+            {
+                return false;
+            }
+
             AllHits.Add(hit);
             return true;
         }
 
-        public void TransformNewHits(int oldNumHits, float oldFraction, Unity.Physics.Math.MTransform transform, uint numSubKeyBits, uint subKey)
-        {
-            for (int i = oldNumHits; i < NumHits; i++)
-            {
-                T hit = AllHits[i];
-                hit.Transform(transform, numSubKeyBits, subKey);
-                AllHits[i] = hit;
-            }
-        }
-
-        public void TransformNewHits(int oldNumHits, float oldFraction, Unity.Physics.Math.MTransform transform, int rigidBodyIndex)
-        {
-            if (rigidBodyIndex == m_selfRBIndex)
-            {
-                for (int i = oldNumHits; i < NumHits; i++)
-                {
-                    AllHits.RemoveAtSwapBack(oldNumHits);
-                }
-
-                return;
-            }
-
-            for (int i = oldNumHits; i < NumHits; i++)
-            {
-                T hit = AllHits[i];
-                hit.Transform(transform, rigidBodyIndex);
-                AllHits[i] = hit;
-            }
-        }
-
         #endregion
+
     }
 
-    // A collector which stores only the closest hit different from itself and the triggers it hit.
-    public struct SelfAndTriggerFilteringClosestHitCollector<T> : ICollector<T> where T : struct, IQueryResult
+    // A collector which stores only the closest hit different from itself, the triggers, and predefined list of values it hit.
+    public struct CharacterControllerClosestHitCollector<T> : ICollector<T> where T : struct, IQueryResult
     {
         public bool EarlyOutOnFirstHit => false;
         public float MaxFraction { get; private set; }
         public int NumHits { get; private set; }
 
-        private float m_prevMaxFraction;
-        private int m_prevNumHits;
-
-        private ColliderKey m_lastColliderKey;
-        private ColliderKey m_prevColliderKey;
-
-        private T m_OldHit;
         private T m_ClosestHit;
         public T ClosestHit => m_ClosestHit;
 
         private int m_selfRBIndex;
         private PhysicsWorld m_world;
 
-        public SelfAndTriggerFilteringClosestHitCollector(PhysicsWorld world, int rbIndex, float maxFraction)
+        private NativeList<SurfaceConstraintInfo> m_PredefinedConstraints;
+
+        public CharacterControllerClosestHitCollector(NativeList<SurfaceConstraintInfo> predefinedConstraints, PhysicsWorld world, int rbIndex, float maxFraction)
         {
-            m_prevMaxFraction = 0;
             MaxFraction = maxFraction;
-            m_OldHit = default;
             m_ClosestHit = default;
-            m_prevNumHits = 0;
             NumHits = 0;
             m_selfRBIndex = rbIndex;
             m_world = world;
-            m_lastColliderKey = ColliderKey.Empty;
-            m_prevColliderKey = ColliderKey.Empty;
+            m_PredefinedConstraints = predefinedConstraints;
         }
 
         #region ICollector
@@ -149,80 +116,51 @@ public static class CharacterControllerUtilities
         public bool AddHit(T hit)
         {
             Assert.IsTrue(hit.Fraction <= MaxFraction);
-            m_prevMaxFraction = MaxFraction;
+
+            // Check self hits and trigger hits
+            if ((hit.RigidBodyIndex == m_selfRBIndex) || IsTrigger(m_world.Bodies, hit.RigidBodyIndex, hit.ColliderKey))
+            {
+                return false;
+            }
+
+            // Check predefined hits
+            for (int i = 0; i < m_PredefinedConstraints.Length; i++)
+            {
+                SurfaceConstraintInfo constraint = m_PredefinedConstraints[i];
+                if (constraint.RigidBodyIndex == hit.RigidBodyIndex &&
+                    constraint.ColliderKey.Equals(hit.ColliderKey))
+                {
+                    // Hit was already defined, skip it
+                    return false;
+                }
+            }
+
+            // Finally, accept the hit
             MaxFraction = hit.Fraction;
-            m_OldHit = m_ClosestHit;
             m_ClosestHit = hit;
-            m_prevNumHits = NumHits;
             NumHits = 1;
-            m_prevColliderKey = m_lastColliderKey;
-            m_lastColliderKey = ColliderKey.Empty;
             return true;
         }
 
-        public void TransformNewHits(int oldNumHits, float oldFraction, Math.MTransform transform, uint numSubKeyBits, uint subKey)
-        {
-            m_lastColliderKey = ColliderKey.Empty;
-            m_lastColliderKey.PushSubKey(numSubKeyBits, subKey);
-            if (m_ClosestHit.Fraction < oldFraction)
-            {
-                m_ClosestHit.Transform(transform, numSubKeyBits, subKey);
-            }
-        }
-
-        public void TransformNewHits(int oldNumHits, float oldFraction, Math.MTransform transform, int rigidBodyIndex)
-        {
-            // Ignore self hits
-            if (rigidBodyIndex == m_selfRBIndex)
-            {
-                FallbackToPreviousHit();
-                return;
-            }
-
-            // Ignore triggers
-            if (IsTrigger(m_world.Bodies, rigidBodyIndex, m_lastColliderKey))
-            {
-                FallbackToPreviousHit();
-                return;
-            }
-
-            if (m_ClosestHit.Fraction < oldFraction)
-            {
-                m_ClosestHit.Transform(transform, rigidBodyIndex);
-            }
-        }
-
-        private void FallbackToPreviousHit()
-        {
-            MaxFraction = m_prevMaxFraction;
-            m_prevMaxFraction = 0;
-            m_ClosestHit = m_OldHit;
-            m_OldHit = default;
-            m_lastColliderKey = m_prevColliderKey;
-            m_prevColliderKey = ColliderKey.Empty;
-            NumHits = m_prevNumHits;
-            m_prevNumHits = 0;
-        }
-
         #endregion
+
     }
 
     public static unsafe void CheckSupport(
         ref PhysicsWorld world, Collider* collider, CharacterControllerStepInput stepInput, RigidTransform transform,
-        out CharacterSupportState characterState, out float3 surfaceNormal, out float3 surfaceVelocity, out NativeList<SurfaceConstraintInfo> constraints/*, float3 CastDirection = default*/)
+        out CharacterSupportState characterState, out float3 surfaceNormal, out float3 surfaceVelocity)
     {
         surfaceNormal = float3.zero;
         surfaceVelocity = float3.zero;
 
         // Up direction must be normalized
-        //Assert.IsTrue(Math.IsNormalized(stepInput.Up));
+        Assert.IsTrue(Unity.Physics.Math.IsNormalized(stepInput.Up));
 
         // Query the world
         NativeList<ColliderCastHit> castHits = new NativeList<ColliderCastHit>(k_DefaultQueryHitsCapacity, Allocator.Temp);
-        SelfFilteringAllHitsCollector<ColliderCastHit> castHitsCollector = new SelfFilteringAllHitsCollector<ColliderCastHit>(
-            stepInput.RigidBodyIndex, 1.0f, ref castHits);
-        //UnityEngine.Debug.Log($"CastDirection {CastDirection}");
-        var maxDisplacement = stepInput.ContactTolerance * -stepInput.Up; //(CastDirection.Equals(default) ? -stepInput.Up : CastDirection);
+        CharacterControllerAllHitsCollector<ColliderCastHit> castHitsCollector = new CharacterControllerAllHitsCollector<ColliderCastHit>(
+            stepInput.RigidBodyIndex, 1.0f, ref castHits, world);
+        var maxDisplacement = -stepInput.ContactTolerance * stepInput.Up;
         {
             ColliderCastInput input = new ColliderCastInput()
             {
@@ -238,14 +176,13 @@ public static class CharacterControllerUtilities
         if (castHitsCollector.NumHits == 0)
         {
             characterState = CharacterSupportState.Unsupported;
-            constraints = new NativeList<SurfaceConstraintInfo>(0, Allocator.Temp);
             return;
         }
 
         float maxSlopeCos = math.cos(stepInput.MaxSlope);
 
         // Iterate over distance hits and create constraints from them
-        constraints = new NativeList<SurfaceConstraintInfo>(k_DefaultConstraintsCapacity, Allocator.Temp);
+        NativeList<SurfaceConstraintInfo> constraints = new NativeList<SurfaceConstraintInfo>(k_DefaultConstraintsCapacity, Allocator.Temp);
         float maxDisplacementLength = math.length(maxDisplacement);
         for (int i = 0; i < castHitsCollector.NumHits; i++)
         {
@@ -349,7 +286,7 @@ public static class CharacterControllerUtilities
             {
                 float3 displacement = newVelocity * remainingTime;
                 NativeList<ColliderCastHit> castHits = new NativeList<ColliderCastHit>(k_DefaultQueryHitsCapacity, Allocator.Temp);
-                SelfFilteringAllHitsCollector<ColliderCastHit> collector = new SelfFilteringAllHitsCollector<ColliderCastHit>(stepInput.RigidBodyIndex, 1.0f, ref castHits);
+                CharacterControllerAllHitsCollector<ColliderCastHit> collector = new CharacterControllerAllHitsCollector<ColliderCastHit>(stepInput.RigidBodyIndex, 1.0f, ref castHits, world);
                 ColliderCastInput input = new ColliderCastInput()
                 {
                     Collider = collider,
@@ -374,8 +311,8 @@ public static class CharacterControllerUtilities
             {
                 // Collider distance query
                 NativeList<DistanceHit> distanceHits = new NativeList<DistanceHit>(k_DefaultQueryHitsCapacity, Allocator.Temp);
-                SelfFilteringAllHitsCollector<DistanceHit> distanceHitsCollector = new SelfFilteringAllHitsCollector<DistanceHit>(
-                    stepInput.RigidBodyIndex, stepInput.ContactTolerance, ref distanceHits);
+                CharacterControllerAllHitsCollector<DistanceHit> distanceHitsCollector = new CharacterControllerAllHitsCollector<DistanceHit>(
+                    stepInput.RigidBodyIndex, stepInput.ContactTolerance, ref distanceHits, world);
                 {
                     ColliderDistanceInput input = new ColliderDistanceInput()
                     {
@@ -458,7 +395,7 @@ public static class CharacterControllerUtilities
             if (math.lengthsq(newDisplacement) > k_SimplexSolverEpsilon)
             {
                 // Check if we can walk to the position simplex solver has suggested
-                var newCollector = new SelfAndTriggerFilteringClosestHitCollector<ColliderCastHit>(world, stepInput.RigidBodyIndex, 1.0f);
+                var newCollector = new CharacterControllerClosestHitCollector<ColliderCastHit>(constraints, world, stepInput.RigidBodyIndex, 1.0f);
 
                 ColliderCastInput input = new ColliderCastInput()
                 {
@@ -474,20 +411,7 @@ public static class CharacterControllerUtilities
                 {
                     ColliderCastHit hit = newCollector.ClosestHit;
 
-                    bool found = false;
-                    for (int constraintIndex = 0; constraintIndex < constraints.Length; constraintIndex++)
-                    {
-                        SurfaceConstraintInfo constraint = constraints[constraintIndex];
-                        if (constraint.RigidBodyIndex == hit.RigidBodyIndex &&
-                            constraint.ColliderKey.Equals(hit.ColliderKey))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
                     // Move character along the newDisplacement direction until it reaches this new contact
-                    if (!found)
                     {
                         Assert.IsTrue(hit.Fraction >= 0.0f && hit.Fraction <= 1.0f);
 
@@ -570,12 +494,6 @@ public static class CharacterControllerUtilities
         int hitRigidBodyIndex, ColliderKey hitColliderKey, float3 hitPosition, float3 hitSurfaceNormal, float hitDistance,
         float skinWidth, float maxSlopeCos, ref NativeList<SurfaceConstraintInfo> constraints)
     {
-        // First check if the hit is trigger
-        if (IsTrigger(world.Bodies, hitRigidBodyIndex, hitColliderKey))
-        {
-            return;
-        }
-
         CreateConstraintFromHit(world, hitRigidBodyIndex, hitColliderKey, hitPosition,
             hitSurfaceNormal, hitDistance, skinWidth, out SurfaceConstraintInfo constraint);
 

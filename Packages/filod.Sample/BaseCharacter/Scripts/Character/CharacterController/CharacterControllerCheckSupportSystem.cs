@@ -91,8 +91,7 @@ public class CharacterControllerCheckSupportSystem : JobComponentSystem
                         transform,
                         out ccGroundData.SupportedState,
                         out ccGroundData.SurfaceNormal,
-                        out ccGroundData.SurfaceVelocity,
-                        out var constraints);
+                        out ccGroundData.SurfaceVelocity);
 
                     //for (int i = 0; i < constraints.Length; i++)
                     //{
