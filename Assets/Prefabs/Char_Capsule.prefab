@@ -302,6 +302,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -326,6 +327,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &8773871111184087773
 GameObject:
   m_ObjectHideFlags: 0
@@ -381,6 +383,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -405,6 +408,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &8963002562716681565
 GameObject:
   m_ObjectHideFlags: 0
@@ -496,7 +500,7 @@ MonoBehaviour:
   MaxIterations: 10
   CharacterMass: 1
   SkinWidth: 0.02
-  ContactTolerance: 0.1
+  ContactTolerance: 0.05
   AffectsPhysicsBodies: 0
   MaxMovementSpeed: 50
   GroundProbeVector:
@@ -1160,7 +1164,21 @@ MonoBehaviour:
     fields: []
     manualFieldList: 0
     entityIndex: 3
-  - name: Unity.Rendering.PerInstanceCullingTag
+  - name: Ability+AbilityControl
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields:
+    - name: behaviorState
+      quantization: -1
+      interpolate: 0
+    - name: requestDeactivate
+      quantization: -1
+      interpolate: 0
+    manualFieldList: 0
+    entityIndex: 4
+  - name: Ability+AbilityTag
     interpolatedClient: 1
     predictedClient: 1
     server: 1
@@ -1168,15 +1186,27 @@ MonoBehaviour:
     fields: []
     manualFieldList: 0
     entityIndex: 4
-  - name: Unity.Rendering.RenderBounds
+  - name: AbilityClimb+PredictedState
     interpolatedClient: 1
     predictedClient: 1
     server: 1
     sendDataTo: 0
-    fields: []
+    fields:
+    - name: locoState
+      quantization: -1
+      interpolate: 0
+    - name: SurfaceNormal
+      quantization: 0
+      interpolate: 0
+    - name: SurfaceVelocity
+      quantization: 0
+      interpolate: 0
+    - name: SupportedState
+      quantization: -1
+      interpolate: 0
     manualFieldList: 0
     entityIndex: 4
-  - name: Unity.Rendering.RenderMesh
+  - name: AbilityClimb+Settings
     interpolatedClient: 1
     predictedClient: 1
     server: 1
@@ -1193,14 +1223,6 @@ MonoBehaviour:
     manualFieldList: 0
     entityIndex: 4
   - name: Unity.Transforms.LocalToWorld
-    interpolatedClient: 1
-    predictedClient: 1
-    server: 1
-    sendDataTo: 0
-    fields: []
-    manualFieldList: 0
-    entityIndex: 4
-  - name: Unity.Transforms.NonUniformScale
     interpolatedClient: 1
     predictedClient: 1
     server: 1
@@ -1304,4 +1326,76 @@ MonoBehaviour:
     fields: []
     manualFieldList: 0
     entityIndex: 5
+  - name: Unity.Rendering.PerInstanceCullingTag
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields: []
+    manualFieldList: 0
+    entityIndex: 6
+  - name: Unity.Rendering.RenderBounds
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields: []
+    manualFieldList: 0
+    entityIndex: 6
+  - name: Unity.Rendering.RenderMesh
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields: []
+    manualFieldList: 0
+    entityIndex: 6
+  - name: Unity.Transforms.LocalToParent
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields: []
+    manualFieldList: 0
+    entityIndex: 6
+  - name: Unity.Transforms.LocalToWorld
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields: []
+    manualFieldList: 0
+    entityIndex: 6
+  - name: Unity.Transforms.NonUniformScale
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields: []
+    manualFieldList: 0
+    entityIndex: 6
+  - name: Unity.Transforms.Parent
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields: []
+    manualFieldList: 0
+    entityIndex: 6
+  - name: Unity.Transforms.Rotation
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields: []
+    manualFieldList: 0
+    entityIndex: 6
+  - name: Unity.Transforms.Translation
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
+    sendDataTo: 0
+    fields: []
+    manualFieldList: 0
+    entityIndex: 6
   doNotStrip: 0

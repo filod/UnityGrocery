@@ -28,7 +28,7 @@ public static class CharacterModule
         var group = world.CreateSystem<CharacterPresentationSystemGroup>();
         group.AddSystemToUpdateList(world.CreateSystem<PrepareCharacterPresentationState>());
         group.AddSystemToUpdateList(world.CreateSystem<ApplyRootTransform>());
-        //group.AddSystemToUpdateList(world.CreateSystem<AnimSourceRootSystemGroup>());
+        group.AddSystemToUpdateList(world.CreateSystem<AnimSourceRootSystemGroup>());
         return group;
     }
 
@@ -37,7 +37,7 @@ public static class CharacterModule
         var group = world.CreateSystem<CharacterPresentationSystemGroup>();
         group.AddSystemToUpdateList(world.CreateSystem<PrepareCharacterPresentationState>());
         group.AddSystemToUpdateList(world.CreateSystem<ApplyRootTransform>());
-        //group.AddSystemToUpdateList(world.CreateSystem<AnimSourceRootSystemGroup>());
+        group.AddSystemToUpdateList(world.CreateSystem<AnimSourceRootSystemGroup>());
         return group;
     }
 

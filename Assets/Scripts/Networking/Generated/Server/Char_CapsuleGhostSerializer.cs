@@ -53,6 +53,8 @@ public struct Char_CapsuleGhostSerializer : IGhostSerializer<Char_CapsuleSnapsho
     [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<Ability.AbilityControl> ghostChild1AbilityAbilityControlType;
     [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<Ability.AbilityControl> ghostChild2AbilityAbilityControlType;
     [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<AbilityDash.PredictedState> ghostChild2AbilityDashPredictedStateType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<Ability.AbilityControl> ghostChild3AbilityAbilityControlType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ComponentDataFromEntity<AbilityClimb.PredictedState> ghostChild3AbilityClimbPredictedStateType;
 
 
     public int CalculateImportance(ArchetypeChunk chunk)
@@ -108,6 +110,8 @@ public struct Char_CapsuleGhostSerializer : IGhostSerializer<Char_CapsuleSnapsho
         ghostChild1AbilityAbilityControlType = system.GetComponentDataFromEntity<Ability.AbilityControl>(true);
         ghostChild2AbilityAbilityControlType = system.GetComponentDataFromEntity<Ability.AbilityControl>(true);
         ghostChild2AbilityDashPredictedStateType = system.GetComponentDataFromEntity<AbilityDash.PredictedState>(true);
+        ghostChild3AbilityAbilityControlType = system.GetComponentDataFromEntity<Ability.AbilityControl>(true);
+        ghostChild3AbilityClimbPredictedStateType = system.GetComponentDataFromEntity<AbilityClimb.PredictedState>(true);
     }
 
     public void CopyToSnapshot(ArchetypeChunk chunk, int ent, uint tick, ref Char_CapsuleSnapshotData snapshot, GhostSerializerState serializerState)
@@ -190,5 +194,11 @@ public struct Char_CapsuleGhostSerializer : IGhostSerializer<Char_CapsuleSnapsho
         snapshot.SetChild2AbilityDashPredictedStatelocoState(ghostChild2AbilityDashPredictedStateType[chunkDataLinkedEntityGroup[ent][3].Value].locoState, serializerState);
         snapshot.SetChild2AbilityDashPredictedStatelocoStartTick(ghostChild2AbilityDashPredictedStateType[chunkDataLinkedEntityGroup[ent][3].Value].locoStartTick, serializerState);
         snapshot.SetChild2AbilityDashPredictedStatestartVelocity(ghostChild2AbilityDashPredictedStateType[chunkDataLinkedEntityGroup[ent][3].Value].startVelocity, serializerState);
+        snapshot.SetChild3AbilityAbilityControlbehaviorState(ghostChild3AbilityAbilityControlType[chunkDataLinkedEntityGroup[ent][4].Value].behaviorState, serializerState);
+        snapshot.SetChild3AbilityAbilityControlrequestDeactivate(ghostChild3AbilityAbilityControlType[chunkDataLinkedEntityGroup[ent][4].Value].requestDeactivate, serializerState);
+        snapshot.SetChild3AbilityClimbPredictedStatelocoState(ghostChild3AbilityClimbPredictedStateType[chunkDataLinkedEntityGroup[ent][4].Value].locoState, serializerState);
+        snapshot.SetChild3AbilityClimbPredictedStateSurfaceNormal(ghostChild3AbilityClimbPredictedStateType[chunkDataLinkedEntityGroup[ent][4].Value].SurfaceNormal, serializerState);
+        snapshot.SetChild3AbilityClimbPredictedStateSurfaceVelocity(ghostChild3AbilityClimbPredictedStateType[chunkDataLinkedEntityGroup[ent][4].Value].SurfaceVelocity, serializerState);
+        snapshot.SetChild3AbilityClimbPredictedStateSupportedState(ghostChild3AbilityClimbPredictedStateType[chunkDataLinkedEntityGroup[ent][4].Value].SupportedState, serializerState);
     }
 }

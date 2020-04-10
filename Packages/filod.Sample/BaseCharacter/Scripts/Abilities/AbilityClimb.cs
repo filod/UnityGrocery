@@ -99,7 +99,7 @@ public class AbilityClimb
             {
                 supported = true;
                 avgSurfaceNormal += SurfaceNormal;
-                avgSurfaceVelocity += SurfaceVelocity;
+                avgSurfaceVelocity = SurfaceVelocity;
             }
             //var numSupportingPlanes = 0;
             //GameDebug.Log($"constraints.Length {constraints.Length} {}");
@@ -206,15 +206,16 @@ public class AbilityClimb
                     var ccCollider = ccColliderFromEntity[activeAbility.owner];
 
                     var startPosition = characterStartPositionFromEntity[activeAbility.owner];
-                    startPosition.StartPosition = charPredictedState.position;
-                    startPosition.FollowGround = false;
-                    startPosition.CheckSupport = false;
 
                     if (ClimbAllowed(
                         command, charPredictedState.position, charInterpolatedState.rotation, ccData, ccCollider, ref physicsWorld, time.tickDuration,
                         out var avgSurfaceNormal,
                         out var avgSurfaceVelocity))
                     {
+                        // 这里需要禁用掉常规的地面检测 
+                        startPosition.StartPosition = charPredictedState.position;
+                        startPosition.FollowGround = false;
+                        startPosition.CheckSupport = false;
                         var velocity = characterVelocityFromEntity[activeAbility.owner];
 
                         DebugDraw.Line(startPosition.StartPosition, startPosition.StartPosition + avgSurfaceVelocity, Color.magenta);
@@ -222,17 +223,15 @@ public class AbilityClimb
                         var rotateToNormal = Quaternion.FromToRotation(avgSurfaceNormal, math.up());
                         var rotateFromNormal = Quaternion.FromToRotation(math.up(), avgSurfaceNormal);
                         newVelocity = rotateToNormal * newVelocity;
-                        //avgSurfaceVelocity = rotateToNormal * avgSurfaceVelocity;
-                        //command.lookYaw = 0; //reset lookYaw
                         var planeVelocity = AbilityMovement.ActiveUpdate.CalculateGroundVelocity(newVelocity, 0, ref command, true, settings.Speed, settings.Friction, settings.Acceleration, time.tickDuration);
                         newVelocity = rotateFromNormal * planeVelocity;
 
-                        //DebugDraw.Line(charPredictedState.position, charPredictedState.position + avgSurfaceNormal, UnityEngine.Color.green);
                         var yAxis = new Vector3(0, 1, 0);
 
+                        // 让角色永远朝向被攀爬的墙面
                         charInterpolatedState.rotation = Vector3.SignedAngle(Vector3.forward, Vector3.ProjectOnPlane(-avgSurfaceNormal, yAxis), yAxis);
 
-                        // follow wall
+                        // 这里参考 CharacterControllerFollowGroundSystem 里紧贴地面的代码, 让角色能紧贴墙面
                         var vel = newVelocity;
                         if (math.lengthsq(vel) > 0f)
                         {
@@ -241,9 +240,8 @@ public class AbilityClimb
                             var skinWidth = ccData.SkinWidth;
                             var startPos = startPosition.StartPosition - up * (skinWidth + ccInitData.CapsuleRadius) + new float3(0, center, 0);
                             var dir = math.normalizesafe(vel);
-                            //var horizDir = new float3(dir.x, 0.0f, 0f);
 
-                            var len = center; //use big circle as raycast
+                            var len = center; // use big circle as raycast
                             var endPos = startPos + len * dir;
                             var slopeAdjustment = up * len * math.tan(ccData.MaxSlope);
                             DebugDraw.Circle(startPos, up, len, Color.red);
@@ -264,7 +262,6 @@ public class AbilityClimb
                                 newVelocity = newVel;
                                 DebugDraw.Line(startPosition.StartPosition, startPosition.StartPosition + newVelocity, Color.blue);
                             }
-
                         }
 
                         velocity.Velocity = newVelocity + avgSurfaceVelocity;
@@ -274,6 +271,7 @@ public class AbilityClimb
                         characterInterpolatedDataFromEntity[activeAbility.owner] = charInterpolatedState;
                     } else
                     {
+                        // 如果松开了按钮, 或者爬离墙面, 就退出 Active 状态
                         stateActive.requestCooldown = true;
                         return;
                     }

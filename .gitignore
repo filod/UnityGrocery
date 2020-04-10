@@ -72,3 +72,6 @@ crashlytics-build.properties
 /Assets/plugins/
 /Assets/Samples/
 /LocalPackages/
+
+
+/Packages/filod.Sample/Character.Human/Bandit/

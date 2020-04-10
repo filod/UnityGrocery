@@ -195,9 +195,8 @@ public class HandleCharacterDespawnRequests : ComponentSystem
 
             PrefabAssetManager.DestroyEntity(EntityManager,request.characterEntity);
             PostUpdateCommands.DestroyEntity(requestEntityArray[i]);
-            // TODO (filod): no anim graph state for now.
-            //if(Character.ShowLifetime.IntValue > 0)
-            //    AnimationGraphHelper.DumpState(World);
+            if (Character.ShowLifetime.IntValue > 0)
+                AnimationGraphHelper.DumpState(World);
         }
         requestEntityArray.Dispose();
         requestArray.Dispose();

@@ -14,7 +14,7 @@ public struct UnityGroceryGhostDeserializerCollection : IGhostDeserializerCollec
             "Char_CapsuleGhostSerializer",
             "PlayerStateGhostSerializer",
             "GameModeGhostSerializer",
-            "platformGhostSerializer",
+            "Char_BanditGhostSerializer",
         };
         return arr;
     }
@@ -35,10 +35,10 @@ public struct UnityGroceryGhostDeserializerCollection : IGhostDeserializerCollec
         m_GameModeSnapshotDataNewGhostIds = curGameModeGhostSpawnSystem.NewGhostIds;
         m_GameModeSnapshotDataNewGhosts = curGameModeGhostSpawnSystem.NewGhosts;
         curGameModeGhostSpawnSystem.GhostType = 2;
-        var curplatformGhostSpawnSystem = world.GetOrCreateSystem<platformGhostSpawnSystem>();
-        m_platformSnapshotDataNewGhostIds = curplatformGhostSpawnSystem.NewGhostIds;
-        m_platformSnapshotDataNewGhosts = curplatformGhostSpawnSystem.NewGhosts;
-        curplatformGhostSpawnSystem.GhostType = 3;
+        var curChar_BanditGhostSpawnSystem = world.GetOrCreateSystem<Char_BanditGhostSpawnSystem>();
+        m_Char_BanditSnapshotDataNewGhostIds = curChar_BanditGhostSpawnSystem.NewGhostIds;
+        m_Char_BanditSnapshotDataNewGhosts = curChar_BanditGhostSpawnSystem.NewGhosts;
+        curChar_BanditGhostSpawnSystem.GhostType = 3;
     }
 
     public void BeginDeserialize(JobComponentSystem system)
@@ -46,7 +46,7 @@ public struct UnityGroceryGhostDeserializerCollection : IGhostDeserializerCollec
         m_Char_CapsuleSnapshotDataFromEntity = system.GetBufferFromEntity<Char_CapsuleSnapshotData>();
         m_PlayerStateSnapshotDataFromEntity = system.GetBufferFromEntity<PlayerStateSnapshotData>();
         m_GameModeSnapshotDataFromEntity = system.GetBufferFromEntity<GameModeSnapshotData>();
-        m_platformSnapshotDataFromEntity = system.GetBufferFromEntity<platformSnapshotData>();
+        m_Char_BanditSnapshotDataFromEntity = system.GetBufferFromEntity<Char_BanditSnapshotData>();
     }
     public bool Deserialize(int serializer, Entity entity, uint snapshot, uint baseline, uint baseline2, uint baseline3,
         ref DataStreamReader reader, NetworkCompressionModel compressionModel)
@@ -63,7 +63,7 @@ public struct UnityGroceryGhostDeserializerCollection : IGhostDeserializerCollec
                 return GhostReceiveSystem<UnityGroceryGhostDeserializerCollection>.InvokeDeserialize(m_GameModeSnapshotDataFromEntity, entity, snapshot, baseline, baseline2,
                 baseline3, ref reader, compressionModel);
             case 3:
-                return GhostReceiveSystem<UnityGroceryGhostDeserializerCollection>.InvokeDeserialize(m_platformSnapshotDataFromEntity, entity, snapshot, baseline, baseline2,
+                return GhostReceiveSystem<UnityGroceryGhostDeserializerCollection>.InvokeDeserialize(m_Char_BanditSnapshotDataFromEntity, entity, snapshot, baseline, baseline2,
                 baseline3, ref reader, compressionModel);
             default:
                 throw new ArgumentException("Invalid serializer type");
@@ -87,8 +87,8 @@ public struct UnityGroceryGhostDeserializerCollection : IGhostDeserializerCollec
                 m_GameModeSnapshotDataNewGhosts.Add(GhostReceiveSystem<UnityGroceryGhostDeserializerCollection>.InvokeSpawn<GameModeSnapshotData>(snapshot, ref reader, compressionModel));
                 break;
             case 3:
-                m_platformSnapshotDataNewGhostIds.Add(ghostId);
-                m_platformSnapshotDataNewGhosts.Add(GhostReceiveSystem<UnityGroceryGhostDeserializerCollection>.InvokeSpawn<platformSnapshotData>(snapshot, ref reader, compressionModel));
+                m_Char_BanditSnapshotDataNewGhostIds.Add(ghostId);
+                m_Char_BanditSnapshotDataNewGhosts.Add(GhostReceiveSystem<UnityGroceryGhostDeserializerCollection>.InvokeSpawn<Char_BanditSnapshotData>(snapshot, ref reader, compressionModel));
                 break;
             default:
                 throw new ArgumentException("Invalid serializer type");
@@ -104,9 +104,9 @@ public struct UnityGroceryGhostDeserializerCollection : IGhostDeserializerCollec
     private BufferFromEntity<GameModeSnapshotData> m_GameModeSnapshotDataFromEntity;
     private NativeList<int> m_GameModeSnapshotDataNewGhostIds;
     private NativeList<GameModeSnapshotData> m_GameModeSnapshotDataNewGhosts;
-    private BufferFromEntity<platformSnapshotData> m_platformSnapshotDataFromEntity;
-    private NativeList<int> m_platformSnapshotDataNewGhostIds;
-    private NativeList<platformSnapshotData> m_platformSnapshotDataNewGhosts;
+    private BufferFromEntity<Char_BanditSnapshotData> m_Char_BanditSnapshotDataFromEntity;
+    private NativeList<int> m_Char_BanditSnapshotDataNewGhostIds;
+    private NativeList<Char_BanditSnapshotData> m_Char_BanditSnapshotDataNewGhosts;
 }
 public struct EnableUnityGroceryGhostReceiveSystemComponent : IComponentData
 {}

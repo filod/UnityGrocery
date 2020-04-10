@@ -1,0 +1,150 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &955412682760827489
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9215747522250961076}
+  - component: {fileID: 2556101445770571848}
+  m_Layer: 0
+  m_Name: InAirBlend
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9215747522250961076
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 955412682760827489}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 6727049281647405693}
+  - {fileID: 7579734840127959521}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2556101445770571848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 955412682760827489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 132a9b23b954b334db63bf3ac62c0cbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settings:
+    sprintTransitionSpeed: 0.075
+    resetControllerOnChange: 0
+--- !u!1 &4876420736099300639
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6727049281647405693}
+  - component: {fileID: 296783328188406668}
+  m_Layer: 0
+  m_Name: InAirRun
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6727049281647405693
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4876420736099300639}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 9215747522250961076}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &296783328188406668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4876420736099300639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb4f750d2b2b0374b8d2941b57566bd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animInAir: {fileID: 7400002, guid: ed235e5b171fd6b43b33cb4392419546, type: 3}
+  animLandAntic: {fileID: 7400002, guid: ff4bed1c84c45284ea58b490480a9bb0, type: 3}
+  animAimDownToUp: {fileID: 7400024, guid: 95a3b2599bdb03a4ca0af6b9b4f30fdd, type: 3}
+  AdditiveRefPose: {fileID: 7400024, guid: 95a3b2599bdb03a4ca0af6b9b4f30fdd, type: 3}
+  landAnticStartHeight: 0.75
+  blendDuration: 0.3
+  aimDuringReloadPitch: 0.5
+--- !u!1 &8381141231828655339
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7579734840127959521}
+  - component: {fileID: 532304735751624149}
+  m_Layer: 0
+  m_Name: InAirSprint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7579734840127959521
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8381141231828655339}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 9215747522250961076}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &532304735751624149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8381141231828655339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb4f750d2b2b0374b8d2941b57566bd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animInAir: {fileID: 7400002, guid: ed235e5b171fd6b43b33cb4392419546, type: 3}
+  animLandAntic: {fileID: 7400002, guid: ff4bed1c84c45284ea58b490480a9bb0, type: 3}
+  animAimDownToUp: {fileID: 7400024, guid: 95a3b2599bdb03a4ca0af6b9b4f30fdd, type: 3}
+  AdditiveRefPose: {fileID: 7400024, guid: 95a3b2599bdb03a4ca0af6b9b4f30fdd, type: 3}
+  landAnticStartHeight: 0.5
+  blendDuration: 0.2
+  aimDuringReloadPitch: 0.5

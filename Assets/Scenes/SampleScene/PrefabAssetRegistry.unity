@@ -43,7 +43,7 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 11
+  serializedVersion: 12
   m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -118,6 +118,8 @@ NavMeshSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
@@ -212,9 +214,17 @@ MonoBehaviour:
   Assets:
   - {fileID: 8963002562716681565, guid: d43ec3c4ac215a748932cb60d9dfc474, type: 3}
   - {fileID: 4491589354023221665, guid: ff34c4c6ade262f47808b639c4d6cf5a, type: 3}
-  - {fileID: 8525862599899175382, guid: 00e444685f8a5cf4498860e7a6579526, type: 3}
   - {fileID: 5188248627033856936, guid: e00dfaa941ae1fe4dbb4dcfd21c09d38, type: 3}
   - {fileID: 7264138978726387939, guid: efa7de15803b53f4693fd81ec7eaa9e0, type: 3}
+  - {fileID: 8963002562716681565, guid: 690c631468a475443b034d44cf6deb27, type: 3}
+  - {fileID: 4991344388646872777, guid: c3663d27983d38a4db990bc802d32ef0, type: 3}
+  - {fileID: 8965444105734222013, guid: 5022257cd5fda2f43abfee0ab711a440, type: 3}
+  - {fileID: 690832075741939064, guid: ed56df45ffd3d6d4d83a4f1cb7b5fad9, type: 3}
+  - {fileID: 955412682760827489, guid: e6287e49483def5409284c59bb556e71, type: 3}
+  - {fileID: 955412682760827489, guid: d9f800bdaa28b7e4f8e5446efb733dfe, type: 3}
+  - {fileID: 955412682760827489, guid: 3628a7be75896574f9bd0d487f7cd408, type: 3}
+  - {fileID: 955412682760827489, guid: aebecd602ee804f45bf3f5114737edc7, type: 3}
+  - {fileID: 4224044467459162647, guid: 6c7f1a74e5c22b24a8a2e2a98d5dd196, type: 3}
 --- !u!1 &1785102998
 GameObject:
   m_ObjectHideFlags: 0
@@ -271,6 +281,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1683979524444329716, guid: d11df56b36d67c741bd733b68abc72e9,
+        type: 3}
+      propertyPath: Ghosts.Array.data[3].prefab
+      value: 
+      objectReference: {fileID: 6901969167318700234, guid: 690c631468a475443b034d44cf6deb27,
+        type: 3}
     - target: {fileID: 1723664945785720150, guid: d11df56b36d67c741bd733b68abc72e9,
         type: 3}
       propertyPath: m_Name

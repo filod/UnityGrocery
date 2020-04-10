@@ -14,7 +14,7 @@ public struct UnityGroceryGhostSerializerCollection : IGhostSerializerCollection
             "Char_CapsuleGhostSerializer",
             "PlayerStateGhostSerializer",
             "GameModeGhostSerializer",
-            "platformGhostSerializer",
+            "Char_BanditGhostSerializer",
         };
         return arr;
     }
@@ -30,7 +30,7 @@ public struct UnityGroceryGhostSerializerCollection : IGhostSerializerCollection
             return 1;
         if (typeof(T) == typeof(GameModeSnapshotData))
             return 2;
-        if (typeof(T) == typeof(platformSnapshotData))
+        if (typeof(T) == typeof(Char_BanditSnapshotData))
             return 3;
         return -1;
     }
@@ -40,7 +40,7 @@ public struct UnityGroceryGhostSerializerCollection : IGhostSerializerCollection
         m_Char_CapsuleGhostSerializer.BeginSerialize(system);
         m_PlayerStateGhostSerializer.BeginSerialize(system);
         m_GameModeGhostSerializer.BeginSerialize(system);
-        m_platformGhostSerializer.BeginSerialize(system);
+        m_Char_BanditGhostSerializer.BeginSerialize(system);
     }
 
     public int CalculateImportance(int serializer, ArchetypeChunk chunk)
@@ -54,7 +54,7 @@ public struct UnityGroceryGhostSerializerCollection : IGhostSerializerCollection
             case 2:
                 return m_GameModeGhostSerializer.CalculateImportance(chunk);
             case 3:
-                return m_platformGhostSerializer.CalculateImportance(chunk);
+                return m_Char_BanditGhostSerializer.CalculateImportance(chunk);
         }
 
         throw new ArgumentException("Invalid serializer type");
@@ -71,7 +71,7 @@ public struct UnityGroceryGhostSerializerCollection : IGhostSerializerCollection
             case 2:
                 return m_GameModeGhostSerializer.SnapshotSize;
             case 3:
-                return m_platformGhostSerializer.SnapshotSize;
+                return m_Char_BanditGhostSerializer.SnapshotSize;
         }
 
         throw new ArgumentException("Invalid serializer type");
@@ -95,7 +95,7 @@ public struct UnityGroceryGhostSerializerCollection : IGhostSerializerCollection
             }
             case 3:
             {
-                return GhostSendSystem<UnityGroceryGhostSerializerCollection>.InvokeSerialize<platformGhostSerializer, platformSnapshotData>(m_platformGhostSerializer, ref dataStream, data);
+                return GhostSendSystem<UnityGroceryGhostSerializerCollection>.InvokeSerialize<Char_BanditGhostSerializer, Char_BanditSnapshotData>(m_Char_BanditGhostSerializer, ref dataStream, data);
             }
             default:
                 throw new ArgumentException("Invalid serializer type");
@@ -104,7 +104,7 @@ public struct UnityGroceryGhostSerializerCollection : IGhostSerializerCollection
     private Char_CapsuleGhostSerializer m_Char_CapsuleGhostSerializer;
     private PlayerStateGhostSerializer m_PlayerStateGhostSerializer;
     private GameModeGhostSerializer m_GameModeGhostSerializer;
-    private platformGhostSerializer m_platformGhostSerializer;
+    private Char_BanditGhostSerializer m_Char_BanditGhostSerializer;
 }
 
 public struct EnableUnityGroceryGhostSendSystemComponent : IComponentData

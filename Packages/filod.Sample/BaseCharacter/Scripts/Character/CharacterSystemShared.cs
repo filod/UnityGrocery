@@ -104,7 +104,7 @@ public class UpdateTeleportation : JobComponentSystem
 }
 
 [DisableAutoCreation]
-//[UpdateBefore(typeof(AnimSourceRootSystemGroup))] TODO (filod) wait anim.
+[UpdateBefore(typeof(AnimSourceRootSystemGroup))] 
 [AlwaysSynchronizeSystem]
 public class PrepareCharacterPresentationState : JobComponentSystem
 {
@@ -312,7 +312,7 @@ public class GroundTest : JobComponentSystem
 [DisableAutoCreation]
 [AlwaysSynchronizeSystem]
 [UpdateAfter(typeof(PrepareCharacterPresentationState))]
-//[UpdateAfter(typeof(AnimSourceRootSystemGroup))] // TODO (filod): wait anim.
+[UpdateAfter(typeof(AnimSourceRootSystemGroup))]
 public class ApplyRootTransform : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)

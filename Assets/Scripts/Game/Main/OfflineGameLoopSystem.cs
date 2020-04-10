@@ -9,9 +9,11 @@ using Unity.NetCode;
 using Unity.Transforms;
 using Unity.Sample.Core;
 using Unity.Physics.Systems;
+using Unity.Animation;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateAfter(typeof(ExportPhysicsWorld)), UpdateBefore(typeof(EndFramePhysicsSystem))]
+//[UpdateBefore(typeof(AnimationSystemGroup))]
 [AlwaysUpdateSystem]
 [AlwaysSynchronizeSystem]
 public class OfflineSimulationUpdateSystem : JobComponentSystem
@@ -59,6 +61,7 @@ public class OfflineGameWorld
 
         m_ManualComponentSystemGroup.AddSystemToUpdateList(CharacterModule.CreateClientUpdateSystemGroup(world));
         m_ManualComponentSystemGroup.AddSystemToUpdateList(world.CreateSystem<AbilityUpdateSystemGroup>());
+        m_ManualComponentSystemGroup.AddSystemToUpdateList(m_GameWorld.GetOrCreateSystem(typeof(PartSystemUpdateGroup)));
 
         m_ManualComponentSystemGroup.AddSystemToUpdateList(CharacterModule.CreateClientPresentationSystemGroup(world));
         //m_ManualComponentSystemGroup.AddSystemToUpdateList(CharacterModule.CreateServerPresentationSystemGroup(world));

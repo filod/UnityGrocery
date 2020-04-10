@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Unity.Entities;
 using UnityEngine.Profiling;
-//using Unity.Animation; TODO (filod)
+using Unity.Animation;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Networking.Transport;
@@ -41,7 +41,7 @@ public class BeforeServerPredictionSystem : JobComponentSystem
 }
 [UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 [UpdateAfter(typeof(GhostSimulationSystemGroup))]
-//[UpdateBefore(typeof(AnimationSystemGroup))] TODO (filod)
+[UpdateBefore(typeof(AnimationSystemGroup))]
 [AlwaysSynchronizeSystem]
 public class AfterServerPredictionSystem : JobComponentSystem
 {
@@ -97,7 +97,7 @@ public class ServerGameWorld
 
         m_AfterPredictionUpdateGroup = m_GameWorld.CreateSystem<ManualComponentSystemGroup>();
         m_AfterPredictionUpdateGroup.AddSystemToUpdateList(CharacterModule.CreateServerPresentationSystemGroup(world));
-        //m_AfterPredictionUpdateGroup.AddSystemToUpdateList(m_GameWorld.GetOrCreateSystem(typeof(PartSystemUpdateGroup)));
+        m_AfterPredictionUpdateGroup.AddSystemToUpdateList(m_GameWorld.GetOrCreateSystem(typeof(PartSystemUpdateGroup)));
 
     }
 
@@ -117,7 +117,7 @@ public class ServerGameWorld
         }
 
 
-        //AnimationGraphHelper.Shutdown(m_GameWorld);
+        AnimationGraphHelper.Shutdown(m_GameWorld);
 
         m_GameWorld = null;
     }

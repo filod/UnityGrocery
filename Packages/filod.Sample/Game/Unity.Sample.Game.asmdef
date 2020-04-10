@@ -12,7 +12,10 @@
         "Unity.Physics",
         "Unity.NetCode",
         "Unity.NetCode.Editor",
-        "Unity.Networking.Transport"
+        "Unity.Networking.Transport",
+        "Unity.Animation",
+        "Unity.Animation.Hybrid",
+        "Unity.DataFlowGraph"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

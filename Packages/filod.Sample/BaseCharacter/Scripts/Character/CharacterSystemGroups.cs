@@ -11,7 +11,7 @@ using ComponentType = Unity.Entities.ComponentType;
 
 
 [DisableAutoCreation]
-//[UpdateBefore(typeof(PartSystemUpdateGroup))]    // TODO (mogensh) how to avoid having references to part system from character ?
+[UpdateBefore(typeof(PartSystemUpdateGroup))]    // TODO (mogensh) how to avoid having references to part system from character ?
 public class CharacterPresentationSystemGroup : ComponentSystemGroup
 {}
 

@@ -37,6 +37,7 @@ public class Char_CapsuleGhostUpdateSystem : JobComponentSystem
         [NativeDisableParallelForRestriction] public ComponentDataFromEntity<AbilityMovement.InterpolatedState> ghostAbilityMovementInterpolatedStateFromEntity;
         [NativeDisableParallelForRestriction] public ComponentDataFromEntity<AbilityMovement.PredictedState> ghostAbilityMovementPredictedStateFromEntity;
         [NativeDisableParallelForRestriction] public ComponentDataFromEntity<AbilityDash.PredictedState> ghostAbilityDashPredictedStateFromEntity;
+        [NativeDisableParallelForRestriction] public ComponentDataFromEntity<AbilityClimb.PredictedState> ghostAbilityClimbPredictedStateFromEntity;
 
         public uint targetTick;
         public float targetTickFraction;
@@ -92,6 +93,8 @@ public class Char_CapsuleGhostUpdateSystem : JobComponentSystem
                 var ghostChild1AbilityAbilityControl = ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][2].Value];
                 var ghostChild2AbilityAbilityControl = ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][3].Value];
                 var ghostChild2AbilityDashPredictedState = ghostAbilityDashPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][3].Value];
+                var ghostChild3AbilityAbilityControl = ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][4].Value];
+                var ghostChild3AbilityClimbPredictedState = ghostAbilityClimbPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][4].Value];
                 ghostCharacterInterpolatedData.Position = snapshotData.GetCharacterInterpolatedDataPosition(deserializerState);
                 ghostCharacterInterpolatedData.rotation = snapshotData.GetCharacterInterpolatedDatarotation(deserializerState);
                 ghostCharacterInterpolatedData.aimYaw = snapshotData.GetCharacterInterpolatedDataaimYaw(deserializerState);
@@ -151,12 +154,20 @@ public class Char_CapsuleGhostUpdateSystem : JobComponentSystem
                 ghostChild2AbilityDashPredictedState.locoState = snapshotData.GetChild2AbilityDashPredictedStatelocoState(deserializerState);
                 ghostChild2AbilityDashPredictedState.locoStartTick = snapshotData.GetChild2AbilityDashPredictedStatelocoStartTick(deserializerState);
                 ghostChild2AbilityDashPredictedState.startVelocity = snapshotData.GetChild2AbilityDashPredictedStatestartVelocity(deserializerState);
+                ghostChild3AbilityAbilityControl.behaviorState = snapshotData.GetChild3AbilityAbilityControlbehaviorState(deserializerState);
+                ghostChild3AbilityAbilityControl.requestDeactivate = snapshotData.GetChild3AbilityAbilityControlrequestDeactivate(deserializerState);
+                ghostChild3AbilityClimbPredictedState.locoState = snapshotData.GetChild3AbilityClimbPredictedStatelocoState(deserializerState);
+                ghostChild3AbilityClimbPredictedState.SurfaceNormal = snapshotData.GetChild3AbilityClimbPredictedStateSurfaceNormal(deserializerState);
+                ghostChild3AbilityClimbPredictedState.SurfaceVelocity = snapshotData.GetChild3AbilityClimbPredictedStateSurfaceVelocity(deserializerState);
+                ghostChild3AbilityClimbPredictedState.SupportedState = snapshotData.GetChild3AbilityClimbPredictedStateSupportedState(deserializerState);
                 ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][1].Value] = ghostChild0AbilityAbilityControl;
                 ghostAbilityMovementInterpolatedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][1].Value] = ghostChild0AbilityMovementInterpolatedState;
                 ghostAbilityMovementPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][1].Value] = ghostChild0AbilityMovementPredictedState;
                 ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][2].Value] = ghostChild1AbilityAbilityControl;
                 ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][3].Value] = ghostChild2AbilityAbilityControl;
                 ghostAbilityDashPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][3].Value] = ghostChild2AbilityDashPredictedState;
+                ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][4].Value] = ghostChild3AbilityAbilityControl;
+                ghostAbilityClimbPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][4].Value] = ghostChild3AbilityClimbPredictedState;
                 ghostCharacterInterpolatedDataArray[entityIndex] = ghostCharacterInterpolatedData;
                 ghostCharacterReplicatedDataArray[entityIndex] = ghostCharacterReplicatedData;
                 ghostCharacterControllerGroundSupportDataArray[entityIndex] = ghostCharacterControllerGroundSupportData;
@@ -198,6 +209,7 @@ public class Char_CapsuleGhostUpdateSystem : JobComponentSystem
         [NativeDisableParallelForRestriction] public ComponentDataFromEntity<AbilityMovement.InterpolatedState> ghostAbilityMovementInterpolatedStateFromEntity;
         [NativeDisableParallelForRestriction] public ComponentDataFromEntity<AbilityMovement.PredictedState> ghostAbilityMovementPredictedStateFromEntity;
         [NativeDisableParallelForRestriction] public ComponentDataFromEntity<AbilityDash.PredictedState> ghostAbilityDashPredictedStateFromEntity;
+        [NativeDisableParallelForRestriction] public ComponentDataFromEntity<AbilityClimb.PredictedState> ghostAbilityClimbPredictedStateFromEntity;
         public uint targetTick;
         public uint lastPredictedTick;
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
@@ -265,6 +277,8 @@ public class Char_CapsuleGhostUpdateSystem : JobComponentSystem
                 var ghostChild1AbilityAbilityControl = ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][2].Value];
                 var ghostChild2AbilityAbilityControl = ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][3].Value];
                 var ghostChild2AbilityDashPredictedState = ghostAbilityDashPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][3].Value];
+                var ghostChild3AbilityAbilityControl = ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][4].Value];
+                var ghostChild3AbilityClimbPredictedState = ghostAbilityClimbPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][4].Value];
                 ghostCharacterPredictedData.tick = snapshotData.GetCharacterPredictedDatatick(deserializerState);
                 ghostCharacterPredictedData.position = snapshotData.GetCharacterPredictedDataposition(deserializerState);
                 ghostCharacterPredictedData.velocity = snapshotData.GetCharacterPredictedDatavelocity(deserializerState);
@@ -300,12 +314,20 @@ public class Char_CapsuleGhostUpdateSystem : JobComponentSystem
                 ghostChild2AbilityDashPredictedState.locoState = snapshotData.GetChild2AbilityDashPredictedStatelocoState(deserializerState);
                 ghostChild2AbilityDashPredictedState.locoStartTick = snapshotData.GetChild2AbilityDashPredictedStatelocoStartTick(deserializerState);
                 ghostChild2AbilityDashPredictedState.startVelocity = snapshotData.GetChild2AbilityDashPredictedStatestartVelocity(deserializerState);
+                ghostChild3AbilityAbilityControl.behaviorState = snapshotData.GetChild3AbilityAbilityControlbehaviorState(deserializerState);
+                ghostChild3AbilityAbilityControl.requestDeactivate = snapshotData.GetChild3AbilityAbilityControlrequestDeactivate(deserializerState);
+                ghostChild3AbilityClimbPredictedState.locoState = snapshotData.GetChild3AbilityClimbPredictedStatelocoState(deserializerState);
+                ghostChild3AbilityClimbPredictedState.SurfaceNormal = snapshotData.GetChild3AbilityClimbPredictedStateSurfaceNormal(deserializerState);
+                ghostChild3AbilityClimbPredictedState.SurfaceVelocity = snapshotData.GetChild3AbilityClimbPredictedStateSurfaceVelocity(deserializerState);
+                ghostChild3AbilityClimbPredictedState.SupportedState = snapshotData.GetChild3AbilityClimbPredictedStateSupportedState(deserializerState);
                 ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][1].Value] = ghostChild0AbilityAbilityControl;
                 ghostAbilityMovementInterpolatedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][1].Value] = ghostChild0AbilityMovementInterpolatedState;
                 ghostAbilityMovementPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][1].Value] = ghostChild0AbilityMovementPredictedState;
                 ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][2].Value] = ghostChild1AbilityAbilityControl;
                 ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][3].Value] = ghostChild2AbilityAbilityControl;
                 ghostAbilityDashPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][3].Value] = ghostChild2AbilityDashPredictedState;
+                ghostAbilityAbilityControlFromEntity[ghostLinkedEntityGroupArray[entityIndex][4].Value] = ghostChild3AbilityAbilityControl;
+                ghostAbilityClimbPredictedStateFromEntity[ghostLinkedEntityGroupArray[entityIndex][4].Value] = ghostChild3AbilityClimbPredictedState;
                 ghostCharacterPredictedDataArray[entityIndex] = ghostCharacterPredictedData;
                 ghostCharacterReplicatedDataArray[entityIndex] = ghostCharacterReplicatedData;
                 ghostCharacterControllerGroundSupportDataArray[entityIndex] = ghostCharacterControllerGroundSupportData;
@@ -404,6 +426,7 @@ public class Char_CapsuleGhostUpdateSystem : JobComponentSystem
                 ghostAbilityMovementInterpolatedStateFromEntity = GetComponentDataFromEntity<AbilityMovement.InterpolatedState>(),
                 ghostAbilityMovementPredictedStateFromEntity = GetComponentDataFromEntity<AbilityMovement.PredictedState>(),
                 ghostAbilityDashPredictedStateFromEntity = GetComponentDataFromEntity<AbilityDash.PredictedState>(),
+                ghostAbilityClimbPredictedStateFromEntity = GetComponentDataFromEntity<AbilityClimb.PredictedState>(),
 
                 targetTick = m_ClientSimulationSystemGroup.ServerTick,
                 lastPredictedTick = m_LastPredictedTick
@@ -438,6 +461,7 @@ public class Char_CapsuleGhostUpdateSystem : JobComponentSystem
                 ghostAbilityMovementInterpolatedStateFromEntity = GetComponentDataFromEntity<AbilityMovement.InterpolatedState>(),
                 ghostAbilityMovementPredictedStateFromEntity = GetComponentDataFromEntity<AbilityMovement.PredictedState>(),
                 ghostAbilityDashPredictedStateFromEntity = GetComponentDataFromEntity<AbilityDash.PredictedState>(),
+                ghostAbilityClimbPredictedStateFromEntity = GetComponentDataFromEntity<AbilityClimb.PredictedState>(),
                 targetTick = m_ClientSimulationSystemGroup.InterpolationTick,
                 targetTickFraction = m_ClientSimulationSystemGroup.InterpolationTickFraction
             };

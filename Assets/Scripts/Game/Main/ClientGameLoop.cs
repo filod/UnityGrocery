@@ -104,9 +104,13 @@ public class ClientGameWorld
         m_PredictedUpdateGroup.AddSystemToUpdateList(world.CreateSystem<AbilityUpdateSystemGroup>());
 
         m_AfterPredictionUpdateGroup = m_GameWorld.CreateSystem<ManualComponentSystemGroup>();
+        m_AfterPredictionUpdateGroup.AddSystemToUpdateList(m_GameWorld.GetOrCreateSystem(typeof(PartSystemUpdateGroup)));
         m_AfterPredictionUpdateGroup.AddSystemToUpdateList(CharacterModule.CreateClientPresentationSystemGroup(world));
+        //m_AfterPredictionUpdateGroup.AddSystemToUpdateList(world.CreateSystem<UpdateCharacterUI>());
 
         m_GameModeSystem = m_GameWorld.CreateSystem<GameModeSystemClient>();
+        //m_ClientFrontendUpdate = m_GameWorld.CreateSystem<ClientFrontendUpdate>();
+        //m_TeleporterSystemClient = m_GameWorld.CreateSystem<TeleporterSystemClient>();
         m_ClientLateUpdate = m_GameWorld.CreateSystem<ClientLateUpdateGroup>();
 
         m_GameModeSystem.SetLocalPlayerId(localPlayerId);

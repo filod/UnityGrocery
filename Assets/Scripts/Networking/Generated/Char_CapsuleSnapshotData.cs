@@ -96,6 +96,16 @@ public struct Char_CapsuleSnapshotData : ISnapshotData<Char_CapsuleSnapshotData>
     private float Child2AbilityDashPredictedStatestartVelocityX;
     private float Child2AbilityDashPredictedStatestartVelocityY;
     private float Child2AbilityDashPredictedStatestartVelocityZ;
+    private int Child3AbilityAbilityControlbehaviorState;
+    private uint Child3AbilityAbilityControlrequestDeactivate;
+    private int Child3AbilityClimbPredictedStatelocoState;
+    private float Child3AbilityClimbPredictedStateSurfaceNormalX;
+    private float Child3AbilityClimbPredictedStateSurfaceNormalY;
+    private float Child3AbilityClimbPredictedStateSurfaceNormalZ;
+    private float Child3AbilityClimbPredictedStateSurfaceVelocityX;
+    private float Child3AbilityClimbPredictedStateSurfaceVelocityY;
+    private float Child3AbilityClimbPredictedStateSurfaceVelocityZ;
+    private int Child3AbilityClimbPredictedStateSupportedState;
     uint changeMask0;
     uint changeMask1;
     uint changeMask2;
@@ -1181,6 +1191,106 @@ public struct Char_CapsuleSnapshotData : ISnapshotData<Char_CapsuleSnapshotData>
         Child2AbilityDashPredictedStatestartVelocityY = val.y;
         Child2AbilityDashPredictedStatestartVelocityZ = val.z;
     }
+    public Ability.AbilityControl.State GetChild3AbilityAbilityControlbehaviorState(GhostDeserializerState deserializerState)
+    {
+        return (Ability.AbilityControl.State)Child3AbilityAbilityControlbehaviorState;
+    }
+    public Ability.AbilityControl.State GetChild3AbilityAbilityControlbehaviorState()
+    {
+        return (Ability.AbilityControl.State)Child3AbilityAbilityControlbehaviorState;
+    }
+    public void SetChild3AbilityAbilityControlbehaviorState(Ability.AbilityControl.State val, GhostSerializerState serializerState)
+    {
+        Child3AbilityAbilityControlbehaviorState = (int)val;
+    }
+    public void SetChild3AbilityAbilityControlbehaviorState(Ability.AbilityControl.State val)
+    {
+        Child3AbilityAbilityControlbehaviorState = (int)val;
+    }
+    public bool GetChild3AbilityAbilityControlrequestDeactivate(GhostDeserializerState deserializerState)
+    {
+        return Child3AbilityAbilityControlrequestDeactivate!=0;
+    }
+    public bool GetChild3AbilityAbilityControlrequestDeactivate()
+    {
+        return Child3AbilityAbilityControlrequestDeactivate!=0;
+    }
+    public void SetChild3AbilityAbilityControlrequestDeactivate(bool val, GhostSerializerState serializerState)
+    {
+        Child3AbilityAbilityControlrequestDeactivate = val?1u:0;
+    }
+    public void SetChild3AbilityAbilityControlrequestDeactivate(bool val)
+    {
+        Child3AbilityAbilityControlrequestDeactivate = val?1u:0;
+    }
+    public AbilityClimb.LocoState GetChild3AbilityClimbPredictedStatelocoState(GhostDeserializerState deserializerState)
+    {
+        return (AbilityClimb.LocoState)Child3AbilityClimbPredictedStatelocoState;
+    }
+    public AbilityClimb.LocoState GetChild3AbilityClimbPredictedStatelocoState()
+    {
+        return (AbilityClimb.LocoState)Child3AbilityClimbPredictedStatelocoState;
+    }
+    public void SetChild3AbilityClimbPredictedStatelocoState(AbilityClimb.LocoState val, GhostSerializerState serializerState)
+    {
+        Child3AbilityClimbPredictedStatelocoState = (int)val;
+    }
+    public void SetChild3AbilityClimbPredictedStatelocoState(AbilityClimb.LocoState val)
+    {
+        Child3AbilityClimbPredictedStatelocoState = (int)val;
+    }
+    public float3 GetChild3AbilityClimbPredictedStateSurfaceNormal(GhostDeserializerState deserializerState)
+    {
+        return GetChild3AbilityClimbPredictedStateSurfaceNormal();
+    }
+    public float3 GetChild3AbilityClimbPredictedStateSurfaceNormal()
+    {
+        return new float3(Child3AbilityClimbPredictedStateSurfaceNormalX, Child3AbilityClimbPredictedStateSurfaceNormalY, Child3AbilityClimbPredictedStateSurfaceNormalZ);
+    }
+    public void SetChild3AbilityClimbPredictedStateSurfaceNormal(float3 val, GhostSerializerState serializerState)
+    {
+        SetChild3AbilityClimbPredictedStateSurfaceNormal(val);
+    }
+    public void SetChild3AbilityClimbPredictedStateSurfaceNormal(float3 val)
+    {
+        Child3AbilityClimbPredictedStateSurfaceNormalX = val.x;
+        Child3AbilityClimbPredictedStateSurfaceNormalY = val.y;
+        Child3AbilityClimbPredictedStateSurfaceNormalZ = val.z;
+    }
+    public float3 GetChild3AbilityClimbPredictedStateSurfaceVelocity(GhostDeserializerState deserializerState)
+    {
+        return GetChild3AbilityClimbPredictedStateSurfaceVelocity();
+    }
+    public float3 GetChild3AbilityClimbPredictedStateSurfaceVelocity()
+    {
+        return new float3(Child3AbilityClimbPredictedStateSurfaceVelocityX, Child3AbilityClimbPredictedStateSurfaceVelocityY, Child3AbilityClimbPredictedStateSurfaceVelocityZ);
+    }
+    public void SetChild3AbilityClimbPredictedStateSurfaceVelocity(float3 val, GhostSerializerState serializerState)
+    {
+        SetChild3AbilityClimbPredictedStateSurfaceVelocity(val);
+    }
+    public void SetChild3AbilityClimbPredictedStateSurfaceVelocity(float3 val)
+    {
+        Child3AbilityClimbPredictedStateSurfaceVelocityX = val.x;
+        Child3AbilityClimbPredictedStateSurfaceVelocityY = val.y;
+        Child3AbilityClimbPredictedStateSurfaceVelocityZ = val.z;
+    }
+    public CharacterControllerUtilities.CharacterSupportState GetChild3AbilityClimbPredictedStateSupportedState(GhostDeserializerState deserializerState)
+    {
+        return (CharacterControllerUtilities.CharacterSupportState)Child3AbilityClimbPredictedStateSupportedState;
+    }
+    public CharacterControllerUtilities.CharacterSupportState GetChild3AbilityClimbPredictedStateSupportedState()
+    {
+        return (CharacterControllerUtilities.CharacterSupportState)Child3AbilityClimbPredictedStateSupportedState;
+    }
+    public void SetChild3AbilityClimbPredictedStateSupportedState(CharacterControllerUtilities.CharacterSupportState val, GhostSerializerState serializerState)
+    {
+        Child3AbilityClimbPredictedStateSupportedState = (int)val;
+    }
+    public void SetChild3AbilityClimbPredictedStateSupportedState(CharacterControllerUtilities.CharacterSupportState val)
+    {
+        Child3AbilityClimbPredictedStateSupportedState = (int)val;
+    }
 
     public void PredictDelta(uint tick, ref Char_CapsuleSnapshotData baseline1, ref Char_CapsuleSnapshotData baseline2)
     {
@@ -1254,6 +1364,10 @@ public struct Char_CapsuleSnapshotData : ISnapshotData<Char_CapsuleSnapshotData>
         Child2AbilityAbilityControlrequestDeactivate = (uint)predictor.PredictInt((int)Child2AbilityAbilityControlrequestDeactivate, (int)baseline1.Child2AbilityAbilityControlrequestDeactivate, (int)baseline2.Child2AbilityAbilityControlrequestDeactivate);
         Child2AbilityDashPredictedStatelocoState = predictor.PredictInt(Child2AbilityDashPredictedStatelocoState, baseline1.Child2AbilityDashPredictedStatelocoState, baseline2.Child2AbilityDashPredictedStatelocoState);
         Child2AbilityDashPredictedStatelocoStartTick = predictor.PredictInt(Child2AbilityDashPredictedStatelocoStartTick, baseline1.Child2AbilityDashPredictedStatelocoStartTick, baseline2.Child2AbilityDashPredictedStatelocoStartTick);
+        Child3AbilityAbilityControlbehaviorState = predictor.PredictInt(Child3AbilityAbilityControlbehaviorState, baseline1.Child3AbilityAbilityControlbehaviorState, baseline2.Child3AbilityAbilityControlbehaviorState);
+        Child3AbilityAbilityControlrequestDeactivate = (uint)predictor.PredictInt((int)Child3AbilityAbilityControlrequestDeactivate, (int)baseline1.Child3AbilityAbilityControlrequestDeactivate, (int)baseline2.Child3AbilityAbilityControlrequestDeactivate);
+        Child3AbilityClimbPredictedStatelocoState = predictor.PredictInt(Child3AbilityClimbPredictedStatelocoState, baseline1.Child3AbilityClimbPredictedStatelocoState, baseline2.Child3AbilityClimbPredictedStatelocoState);
+        Child3AbilityClimbPredictedStateSupportedState = predictor.PredictInt(Child3AbilityClimbPredictedStateSupportedState, baseline1.Child3AbilityClimbPredictedStateSupportedState, baseline2.Child3AbilityClimbPredictedStateSupportedState);
     }
 
     public void Serialize(int networkId, ref Char_CapsuleSnapshotData baseline, ref DataStreamWriter writer, NetworkCompressionModel compressionModel)
@@ -1348,6 +1462,16 @@ public struct Char_CapsuleSnapshotData : ISnapshotData<Char_CapsuleSnapshotData>
         changeMask2 |= (Child2AbilityDashPredictedStatestartVelocityX != baseline.Child2AbilityDashPredictedStatestartVelocityX ||
                                            Child2AbilityDashPredictedStatestartVelocityY != baseline.Child2AbilityDashPredictedStatestartVelocityY ||
                                            Child2AbilityDashPredictedStatestartVelocityZ != baseline.Child2AbilityDashPredictedStatestartVelocityZ) ? (1u<<1) : 0;
+        changeMask2 |= (Child3AbilityAbilityControlbehaviorState != baseline.Child3AbilityAbilityControlbehaviorState) ? (1u<<2) : 0;
+        changeMask2 |= (Child3AbilityAbilityControlrequestDeactivate != baseline.Child3AbilityAbilityControlrequestDeactivate) ? (1u<<3) : 0;
+        changeMask2 |= (Child3AbilityClimbPredictedStatelocoState != baseline.Child3AbilityClimbPredictedStatelocoState) ? (1u<<4) : 0;
+        changeMask2 |= (Child3AbilityClimbPredictedStateSurfaceNormalX != baseline.Child3AbilityClimbPredictedStateSurfaceNormalX ||
+                                           Child3AbilityClimbPredictedStateSurfaceNormalY != baseline.Child3AbilityClimbPredictedStateSurfaceNormalY ||
+                                           Child3AbilityClimbPredictedStateSurfaceNormalZ != baseline.Child3AbilityClimbPredictedStateSurfaceNormalZ) ? (1u<<5) : 0;
+        changeMask2 |= (Child3AbilityClimbPredictedStateSurfaceVelocityX != baseline.Child3AbilityClimbPredictedStateSurfaceVelocityX ||
+                                           Child3AbilityClimbPredictedStateSurfaceVelocityY != baseline.Child3AbilityClimbPredictedStateSurfaceVelocityY ||
+                                           Child3AbilityClimbPredictedStateSurfaceVelocityZ != baseline.Child3AbilityClimbPredictedStateSurfaceVelocityZ) ? (1u<<6) : 0;
+        changeMask2 |= (Child3AbilityClimbPredictedStateSupportedState != baseline.Child3AbilityClimbPredictedStateSupportedState) ? (1u<<7) : 0;
         writer.WritePackedUIntDelta(changeMask0, baseline.changeMask0, compressionModel);
         writer.WritePackedUIntDelta(changeMask1, baseline.changeMask1, compressionModel);
         writer.WritePackedUIntDelta(changeMask2, baseline.changeMask2, compressionModel);
@@ -1429,6 +1553,26 @@ public struct Char_CapsuleSnapshotData : ISnapshotData<Char_CapsuleSnapshotData>
             writer.WritePackedFloatDelta(Child2AbilityDashPredictedStatestartVelocityY, baseline.Child2AbilityDashPredictedStatestartVelocityY, compressionModel);
             writer.WritePackedFloatDelta(Child2AbilityDashPredictedStatestartVelocityZ, baseline.Child2AbilityDashPredictedStatestartVelocityZ, compressionModel);
         }
+        if ((changeMask2 & (1 << 2)) != 0)
+            writer.WritePackedIntDelta(Child3AbilityAbilityControlbehaviorState, baseline.Child3AbilityAbilityControlbehaviorState, compressionModel);
+        if ((changeMask2 & (1 << 3)) != 0)
+            writer.WritePackedUIntDelta(Child3AbilityAbilityControlrequestDeactivate, baseline.Child3AbilityAbilityControlrequestDeactivate, compressionModel);
+        if ((changeMask2 & (1 << 4)) != 0)
+            writer.WritePackedIntDelta(Child3AbilityClimbPredictedStatelocoState, baseline.Child3AbilityClimbPredictedStatelocoState, compressionModel);
+        if ((changeMask2 & (1 << 5)) != 0)
+        {
+            writer.WritePackedFloatDelta(Child3AbilityClimbPredictedStateSurfaceNormalX, baseline.Child3AbilityClimbPredictedStateSurfaceNormalX, compressionModel);
+            writer.WritePackedFloatDelta(Child3AbilityClimbPredictedStateSurfaceNormalY, baseline.Child3AbilityClimbPredictedStateSurfaceNormalY, compressionModel);
+            writer.WritePackedFloatDelta(Child3AbilityClimbPredictedStateSurfaceNormalZ, baseline.Child3AbilityClimbPredictedStateSurfaceNormalZ, compressionModel);
+        }
+        if ((changeMask2 & (1 << 6)) != 0)
+        {
+            writer.WritePackedFloatDelta(Child3AbilityClimbPredictedStateSurfaceVelocityX, baseline.Child3AbilityClimbPredictedStateSurfaceVelocityX, compressionModel);
+            writer.WritePackedFloatDelta(Child3AbilityClimbPredictedStateSurfaceVelocityY, baseline.Child3AbilityClimbPredictedStateSurfaceVelocityY, compressionModel);
+            writer.WritePackedFloatDelta(Child3AbilityClimbPredictedStateSurfaceVelocityZ, baseline.Child3AbilityClimbPredictedStateSurfaceVelocityZ, compressionModel);
+        }
+        if ((changeMask2 & (1 << 7)) != 0)
+            writer.WritePackedIntDelta(Child3AbilityClimbPredictedStateSupportedState, baseline.Child3AbilityClimbPredictedStateSupportedState, compressionModel);
         if (isPredicted)
         {
             if ((changeMask0 & (1 << 31)) != 0)
@@ -1703,6 +1847,46 @@ public struct Char_CapsuleSnapshotData : ISnapshotData<Char_CapsuleSnapshotData>
             Child2AbilityDashPredictedStatestartVelocityY = baseline.Child2AbilityDashPredictedStatestartVelocityY;
             Child2AbilityDashPredictedStatestartVelocityZ = baseline.Child2AbilityDashPredictedStatestartVelocityZ;
         }
+        if ((changeMask2 & (1 << 2)) != 0)
+            Child3AbilityAbilityControlbehaviorState = reader.ReadPackedIntDelta(baseline.Child3AbilityAbilityControlbehaviorState, compressionModel);
+        else
+            Child3AbilityAbilityControlbehaviorState = baseline.Child3AbilityAbilityControlbehaviorState;
+        if ((changeMask2 & (1 << 3)) != 0)
+            Child3AbilityAbilityControlrequestDeactivate = reader.ReadPackedUIntDelta(baseline.Child3AbilityAbilityControlrequestDeactivate, compressionModel);
+        else
+            Child3AbilityAbilityControlrequestDeactivate = baseline.Child3AbilityAbilityControlrequestDeactivate;
+        if ((changeMask2 & (1 << 4)) != 0)
+            Child3AbilityClimbPredictedStatelocoState = reader.ReadPackedIntDelta(baseline.Child3AbilityClimbPredictedStatelocoState, compressionModel);
+        else
+            Child3AbilityClimbPredictedStatelocoState = baseline.Child3AbilityClimbPredictedStatelocoState;
+        if ((changeMask2 & (1 << 5)) != 0)
+        {
+            Child3AbilityClimbPredictedStateSurfaceNormalX = reader.ReadPackedFloatDelta(baseline.Child3AbilityClimbPredictedStateSurfaceNormalX, compressionModel);
+            Child3AbilityClimbPredictedStateSurfaceNormalY = reader.ReadPackedFloatDelta(baseline.Child3AbilityClimbPredictedStateSurfaceNormalY, compressionModel);
+            Child3AbilityClimbPredictedStateSurfaceNormalZ = reader.ReadPackedFloatDelta(baseline.Child3AbilityClimbPredictedStateSurfaceNormalZ, compressionModel);
+        }
+        else
+        {
+            Child3AbilityClimbPredictedStateSurfaceNormalX = baseline.Child3AbilityClimbPredictedStateSurfaceNormalX;
+            Child3AbilityClimbPredictedStateSurfaceNormalY = baseline.Child3AbilityClimbPredictedStateSurfaceNormalY;
+            Child3AbilityClimbPredictedStateSurfaceNormalZ = baseline.Child3AbilityClimbPredictedStateSurfaceNormalZ;
+        }
+        if ((changeMask2 & (1 << 6)) != 0)
+        {
+            Child3AbilityClimbPredictedStateSurfaceVelocityX = reader.ReadPackedFloatDelta(baseline.Child3AbilityClimbPredictedStateSurfaceVelocityX, compressionModel);
+            Child3AbilityClimbPredictedStateSurfaceVelocityY = reader.ReadPackedFloatDelta(baseline.Child3AbilityClimbPredictedStateSurfaceVelocityY, compressionModel);
+            Child3AbilityClimbPredictedStateSurfaceVelocityZ = reader.ReadPackedFloatDelta(baseline.Child3AbilityClimbPredictedStateSurfaceVelocityZ, compressionModel);
+        }
+        else
+        {
+            Child3AbilityClimbPredictedStateSurfaceVelocityX = baseline.Child3AbilityClimbPredictedStateSurfaceVelocityX;
+            Child3AbilityClimbPredictedStateSurfaceVelocityY = baseline.Child3AbilityClimbPredictedStateSurfaceVelocityY;
+            Child3AbilityClimbPredictedStateSurfaceVelocityZ = baseline.Child3AbilityClimbPredictedStateSurfaceVelocityZ;
+        }
+        if ((changeMask2 & (1 << 7)) != 0)
+            Child3AbilityClimbPredictedStateSupportedState = reader.ReadPackedIntDelta(baseline.Child3AbilityClimbPredictedStateSupportedState, compressionModel);
+        else
+            Child3AbilityClimbPredictedStateSupportedState = baseline.Child3AbilityClimbPredictedStateSupportedState;
         if (isPredicted)
         {
             if ((changeMask0 & (1 << 31)) != 0)
